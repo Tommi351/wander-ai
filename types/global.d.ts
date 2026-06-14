@@ -1,0 +1,79 @@
+// 👤 USER & PROFILE ENTITIES
+export interface UserPreferences {
+  budgetTier: "budget" | "mid-range" | "luxury";
+  pace: "relaxed" | "moderate" | "fast-paced";
+  interests: string[]; // e.g., ["foodie", "museums", "hiking"]
+  dietaryRestrictions?: string[];
+}
+
+// export interface UserProfile {
+//   id: string;
+//   fullName: string;
+//   preferences: UserPreferences;
+// }
+
+// // 💬 CHAT ENTITIES
+// export interface ConversationMessage {
+//   id: string;
+//   tripId: string;
+//   role: "user" | "assistant";
+//   content: string;
+//   createdAt: string;
+// }
+
+// // 🌍 MAP COORDINATE COMPONENT
+// export interface GeoLocation {
+//   lat: number;
+//   lng: number;
+//   address: string;
+// }
+
+// // ✈️ TIMELINE ITEM SUB-TYPES
+// export interface FlightItem {
+//   id: string;
+//   type: "flight";
+//   time: string; // e.g., "08:30 AM"
+//   airline: string;
+//   flightNumber: string;
+//   cost: number;
+//   bookingUrl: string;
+// }
+
+// export interface HotelItem {
+//   id: string;
+//   type: "accommodation";
+//   time: string; // e.g., "03:00 PM Check-In"
+//   name: string;
+//   pricePerNight: number;
+//   nights: number;
+//   location: GeoLocation;
+//   bookingUrl: string;
+// }
+
+// export interface ActivityItem {
+//   id: string;
+//   type: "activity";
+//   time: string; // e.g., "11:00 AM"
+//   name: string;
+//   cost: number;
+//   location: GeoLocation;
+//   bookingUrl: string;
+// }
+
+// // Discriminated Union for easy type guard checking in loops
+// export type TimelineItem = FlightItem | HotelItem | ActivityItem;
+
+// // 🗺️ TOP-LEVEL ITINERARY TREE
+// export interface ItineraryDay {
+//   dayNumber: number;
+//   date: string; // e.g., "2026-06-15"
+//   items: TimelineItem[];
+// }
+
+// export interface TravelItinerary {
+//   tripId: string;
+//   destination: string;
+//   totalBudget: number;
+//   currency: string;
+//   timeline: ItineraryDay[];
+// }
