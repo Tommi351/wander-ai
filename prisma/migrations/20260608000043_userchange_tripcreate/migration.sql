@@ -36,6 +36,9 @@ CREATE TABLE "TripVersion" (
     CONSTRAINT "TripVersion_pkey" PRIMARY KEY ("id")
 );
 
+CREATE UNIQUE INDEX "TripVersion_tripId_versionNumber_key"
+ON "TripVersion"("tripId","versionNumber");
+
 -- AddForeignKey
 ALTER TABLE "Trip" ADD CONSTRAINT "Trip_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
