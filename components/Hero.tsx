@@ -37,6 +37,7 @@ const Hero = () => {
       return;
     }
     // Navigate to Dashboard Web Page
+    router.push("/dashboard");
   };
 
   return (

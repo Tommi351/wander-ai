@@ -73,4 +73,6 @@ model TripVersion {
   createdBy String? // "ai" | "user" | "system"
 
   trip Trip @relation(fields: [tripId], references: [id])
+
+  @@unique([tripId, versionNumber])
 }

@@ -1,16 +1,30 @@
 // 👤 USER & PROFILE ENTITIES
 export interface UserPreferences {
   budgetTier: "budget" | "mid-range" | "luxury";
+
   pace: "relaxed" | "moderate" | "fast-paced";
-  interests: string[]; // e.g., ["foodie", "museums", "hiking"]
-  dietaryRestrictions?: string[];
+
+  travelStyle?: "backpacking" | "balanced" | "luxury" | "family" | "business";
+
+  // interests: string[];
+  // priority?: "food" | "culture" | "nature" | "nightlife" | "adventure";
+
+  // dietaryRestrictions?: string[];
+
+  // spendingFlexibility?: "strict" | "moderate" | "flexible";
+  // planningStyle?: "detailed" | "minimal" | "surprise-me";
+
+  // weatherPreference?: "warm" | "cold" | "mixed" | "noPreference";
+
+  // avoidCategories?: string[];
 }
 
-// export interface UserProfile {
-//   id: string;
-//   fullName: string;
-//   preferences: UserPreferences;
-// }
+export interface UserProfile {
+  id: string;
+  fullName: string | null;
+  email: string;
+  preferences: UserPreferences;
+}
 
 // // 💬 CHAT ENTITIES
 // export interface ConversationMessage {
