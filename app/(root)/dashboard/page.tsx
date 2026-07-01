@@ -1,4 +1,4 @@
-import { checkUser } from "@/lib/checkUser";
+import { requireUser } from "@/auth";
 import Link from "next/link";
 
 type Trip = {
@@ -27,7 +27,7 @@ const mockTrips: Trip[] = [
 ];
 
 const Dashboard = async () => {
-  const user = await checkUser();
+  const user = await requireUser();
   return (
     <div className="flex flex-col gap-8 w-full">
       {/* HEADER SECTION */}
@@ -46,7 +46,7 @@ const Dashboard = async () => {
         </div>
 
         <Link
-          href="/builder"
+          href="/trips/new"
           className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
         >
           + Create New Trip

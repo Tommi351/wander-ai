@@ -19,7 +19,7 @@ export const checkUser = async () => {
   if (!emailAddress) {
     throw new Error("No primary email address found for this Clerk user.");
   }
-  const fullName = `${user.firstName} ${user.lastName}.trim();`;
+  const fullName = `${user.firstName} ${user.lastName}`.trim();
   // If not in database, create the new user
   const newUser = await prisma.user.create({
     data: { clerkId: user.id, email: emailAddress, fullName: fullName },

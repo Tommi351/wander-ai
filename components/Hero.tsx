@@ -36,8 +36,8 @@ const Hero = () => {
       router.push("/sign-in");
       return;
     }
-    // Navigate to Dashboard Web Page
-    router.push("/dashboard");
+    // Navigate to Create Trip Web Page
+    router.push("/trips/new");
   };
 
   return (
