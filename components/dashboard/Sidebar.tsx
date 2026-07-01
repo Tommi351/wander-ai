@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Plane,
-  Globe,
-  SlidersHorizontal,
-  Settings,
-  User,
-} from "lucide-react";
+import { LayoutDashboard, Plane, Globe, Settings, User } from "lucide-react";
 
 const navItems = [
   {

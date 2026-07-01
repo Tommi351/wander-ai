@@ -26,6 +26,41 @@ export interface UserProfile {
   preferences: UserPreferences;
 }
 
+// TRIP ENTITIES
+interface Trip {
+  id: string;
+  title: string;
+  destination: string;
+  origin: string | null;
+  startDate: Date | null;
+  endDate: Date | null;
+  budget: number | null;
+  status: TripStatus;
+  updatedAt: Date;
+}
+
+export interface TripDTO {
+  id: string;
+  title: string;
+  destination: string;
+  origin: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  budget: number | null;
+  status: TripStatus;
+  updatedAt: string;
+
+  itineraryJson?: any; // raw for now (Phase 2–3)
+}
+
+export interface TripCard {
+  trip: TripDTO;
+}
+
+interface TripListProps {
+  trips: TripDTO[];
+}
+
 // // 💬 CHAT ENTITIES
 // export interface ConversationMessage {
 //   id: string;
