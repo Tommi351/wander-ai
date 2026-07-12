@@ -1,46 +1,85 @@
 "use client";
 
-import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
-import { Send } from "lucide-react";
+import { useState, useTransition } from "react";
+import ChatInput from "./ChatInput";
+import MessageList from "./MessageList";
+import { ConversationMessage } from "@/types/global";
+import { createMessage } from "@/lib/actions/message.action";
 
-const ChatBox = () => {
-  const onSend = () => {};
+const ChatBox = ({
+  initialMessages,
+  conversationId,
+}: {
+  initialMessages: ConversationMessage[];
+  conversationId: string;
+}) => {
+  const [messages, setMessages] = useState(initialMessages);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSend = async (content: string) => {
+    if (!content.trim()) return;
+
+    setError(null);
+
+    // 1. Create optimistic message
+    const tempId = crypto.randomUUID();
+
+    const tempMessage: ConversationMessage = {
+      id: tempId,
+      conversationId: conversationId,
+      role: "USER",
+      content,
+      createdAt: new Date(),
+    };
+
+    // 2. Add optimistic message immediately
+    setMessages((prev) => [...prev, tempMessage]);
+
+    startTransition(async () => {
+      // 3. Call server
+      const result = await createMessage(conversationId, { content });
+
+      // 4. Handle failure (rollback optimistic message)
+      // Add a check to make sure result.data actually exists too!
+      if (!result.success || !result.data) {
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        setError(result.error || "Failed to send message");
+        return;
+      }
+
+      // 5. Replace optimistic message with real DB message
+      const realMessage = result.data; // TypeScript now knows 100% this is NOT undefined!
+
+      setMessages(
+        (prev) =>
+          prev.map((m) =>
+            m.id === tempId ? { ...realMessage, conversationId } : m,
+          ), // ✅ Now this works perfectly!
+      );
+    });
+  };
+
   return (
     <div className="h-[90vh] flex flex-col">
-      {/* Display Messages */}
-      <section className="flex-1 overflow-y-auto p-4">
-        <div className="flex justify-end mt-2">
-          <div className="max-w-lg bg-blue-600 text-white px-4 py-2 rounded-lg">
-            User Msg
-          </div>
-        </div>
+      <MessageList messages={messages} />
 
-        <div className="flex justify-start mt-2">
-          <div className="max-w-lg bg-gray-100 text-black px-4 py-2 rounded-lg">
-            AI Agent Msg
-          </div>
-        </div>
-      </section>
+      {/* Floating or Inline indicators look much cleaner */}
+      <div className="px-4">
+        {isPending && (
+          <p className="text-xs text-gray-400 font-medium animate-pulse mb-1">
+            Sending message...
+          </p>
+        )}
 
-      {/* User Input */}
-      <section>
-        <div>
-          <div className="border-rounded-3xl p-4 shadow relative">
-            <Textarea
-              placeholder="Create a trip for Paris from New York"
-              className="w-full h-28 bg-transparent border-none focus-visible:ring-0 shadow-none resize-none"
-            />
-            <Button
-              size={"icon"}
-              className="absolute bottom-6 right-6"
-              onClick={() => onSend()}
-            >
-              <Send className="h-4 w-4 " />
-            </Button>
-          </div>
-        </div>
-      </section>
+        {error && (
+          <p className="text-xs text-red-600 font-semibold bg-red-50 p-2 rounded-md border border-red-200 mb-2">
+            Error: {error}
+          </p>
+        )}
+      </div>
+
+      <ChatInput onSend={handleSend} isLoading={isPending} />
     </div>
   );
 };

@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Plane, Globe, Settings, User } from "lucide-react";
+import {
+  LayoutDashboard,
+  Plane,
+  Globe,
+  Settings,
+  User,
+  Bot,
+} from "lucide-react";
 
 const navItems = [
   {
@@ -14,6 +21,11 @@ const navItems = [
     label: "My Trips",
     href: "/trips",
     icon: Plane,
+  },
+  {
+    label: "Chats",
+    href: "/conversations",
+    icon: Bot,
   },
   {
     label: "Explore",

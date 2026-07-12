@@ -57,18 +57,18 @@ export interface TripCard {
   trip: TripDTO;
 }
 
-interface TripListProps {
+export interface TripListProps {
   trips: TripDTO[];
 }
 
-// // 💬 CHAT ENTITIES
-// export interface ConversationMessage {
-//   id: string;
-//   tripId: string;
-//   role: "user" | "assistant";
-//   content: string;
-//   createdAt: string;
-// }
+// 💬 CHAT ENTITIES
+export interface ConversationMessage {
+  id: string;
+  conversationId: string;
+  role: "USER" | "ASSISTANT";
+  content: string;
+  createdAt: Date;
+}
 
 // // 🌍 MAP COORDINATE COMPONENT
 // export interface GeoLocation {
