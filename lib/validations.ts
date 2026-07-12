@@ -83,3 +83,15 @@ export type UpdateTripFormInput = z.input<typeof UpdateTripSchema>;
 // 2. For API payload or AI processing.
 // TypeScript guarantees these are real Date objects or undefined.
 export type UpdateTripData = z.infer<typeof UpdateTripSchema>;
+
+export const CreateMessageSchema = z.object({
+  content: z
+    .string()
+    .trim()
+    .min(1, "Message cannot be empty")
+    .max(2000, "Message is too long (max 2000 characters)"),
+});
+
+export type CreateMessageFormInput = z.input<typeof CreateMessageSchema>;
+
+export type CreateMessageData = z.infer<typeof CreateMessageSchema>;

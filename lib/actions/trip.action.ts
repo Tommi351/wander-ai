@@ -139,10 +139,6 @@ export const updateTrip = async (
 export const deleteTrip = async (tripId: string) => {
   const user = await requireUser();
 
-  if (!user) {
-    throw new Error("Unauthorized User");
-  }
-
   try {
     await prisma.$transaction(async (tx) => {
       // STEP 2a: Delete the child data first (TripVersion)

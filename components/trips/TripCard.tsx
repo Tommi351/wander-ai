@@ -55,9 +55,7 @@ const TripCard = ({ trip }: TripCard) => {
           {trip.status}
         </span>
 
-        <span className="text-xs text-gray-500">
-          Updated {trip.updatedAt.toLocaleDateString()}
-        </span>
+        <span className="text-xs text-gray-500">Updated {trip.updatedAt}</span>
       </div>
     </div>
   );
