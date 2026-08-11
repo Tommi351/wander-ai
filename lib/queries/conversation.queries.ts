@@ -20,6 +20,12 @@ export async function getConversation(conversationId: string) {
       },
 
       trip: true,
+
+      user: {
+        select: {
+          preferences: true,
+        },
+      },
     },
   });
 

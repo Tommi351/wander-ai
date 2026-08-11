@@ -24,11 +24,7 @@ const ConversationsPage = async () => {
             <div className="border rounded-xl p-5 mb-3">
               <p>Conversation {conversation.id}</p>
 
-              {conversation.trip ? (
-                <p>{conversation.trip.title}</p>
-              ) : (
-                <p>New Trip Planning</p>
-              )}
+              <p>{conversation.trip.title}</p>
             </div>
 
             <DeleteConversationButton

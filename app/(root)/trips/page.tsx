@@ -3,6 +3,7 @@ import { getTrips } from "@/lib/queries/trip.queries";
 
 const TripDashboard = async () => {
   const trips = await getTrips();
+
   return (
     <div className="flex flex-col gap-8 w-full">
       <div>

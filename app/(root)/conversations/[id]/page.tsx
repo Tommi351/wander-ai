@@ -16,6 +16,7 @@ const ConversationDetails = async ({ params }: Props) => {
     console.error("Can't find user conversations");
     return notFound();
   }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 p-10">
       {" "}
@@ -24,6 +25,7 @@ const ConversationDetails = async ({ params }: Props) => {
         <ChatBox
           conversationId={conversation.id}
           initialMessages={conversation.messages}
+          tripId={conversation.tripId}
         />{" "}
       </div>{" "}
       <div>

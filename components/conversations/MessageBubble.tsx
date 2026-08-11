@@ -1,6 +1,15 @@
-import { ConversationMessage } from "@/types/global";
+"use client";
 
-const MessageBubble = ({ role, content }: ConversationMessage) => {
+import { MessageBubbleProps } from "@/types/global";
+import PlannerUIRenderer from "../planner/PlannerUIRenderer";
+
+const MessageBubble = ({
+  role,
+  content,
+  ui,
+  onUISubmit,
+  tripState,
+}: MessageBubbleProps) => {
   const isUser = role === "USER";
 
   return (
@@ -11,6 +20,16 @@ const MessageBubble = ({ role, content }: ConversationMessage) => {
         }`}
       >
         {content}
+
+        {ui && (
+          <div className="w-full max-w-[85%] bg-white border border-slate-200/80 rounded-2xl p-3 shadow-md shadow-slate-100/50 animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <PlannerUIRenderer
+              type={ui.type}
+              data={tripState}
+              onSubmit={onUISubmit}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

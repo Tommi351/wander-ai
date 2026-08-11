@@ -39,9 +39,20 @@ export const createMessage = async (
 
       select: {
         id: true,
+        conversationId: true,
         role: true,
         content: true,
         createdAt: true,
+      },
+    });
+
+    // Explicitly update the parent Conversation to trigger updatedAt
+    await prisma.conversation.update({
+      where: {
+        id: conversationId,
+      },
+      data: {
+        updatedAt: new Date(),
       },
     });
 

@@ -3,21 +3,29 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "../db";
 import { requireUser } from "@/auth";
+import { createTrip } from "./trip.action";
 
 export async function createConversation() {
   const user = await requireUser();
 
   try {
-    const conversation = await prisma.conversation.create({
-      data: {
-        userId: user.id,
-      },
-      select: {
-        id: true,
-        createdAt: true,
-      },
+    const result = await prisma.$transaction(async (tx) => {
+      const trip = await createTrip(tx, user.id);
+
+      const conversation = await tx.conversation.create({
+        data: {
+          userId: user.id,
+          tripId: trip.id,
+        },
+      });
+
+      return {
+        conversation,
+        trip,
+      };
     });
-    return { success: true, data: conversation };
+
+    return { success: true, data: result };
   } catch (err) {
     console.error("Critical: Failed to create conversation:", err);
     return { success: false, error: "Failed to create user conversations" };

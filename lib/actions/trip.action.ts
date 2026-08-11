@@ -1,6 +1,8 @@
 "use server";
 
+import { TripDTO } from "@/types/global";
 import { prisma } from "../db";
+import { Prisma } from "../generated/prisma";
 import { toTripDTO } from "../utils";
 import {
   CreateTripSchema,
@@ -21,11 +23,19 @@ export const getTrips = async () => {
         id: true,
         title: true,
         destination: true,
+        travelers: true,
+        budgetTier: true,
+        interests: true,
         origin: true,
         startDate: true,
         endDate: true,
         budget: true,
         status: true,
+        conversation: {
+          select: {
+            id: true,
+          },
+        },
         updatedAt: true,
       },
     });
@@ -53,6 +63,9 @@ export const getTripById = async (tripId: string) => {
         id: true,
         title: true,
         destination: true,
+        travelers: true,
+        budgetTier: true,
+        interests: true,
         origin: true,
         startDate: true,
         endDate: true,
@@ -70,7 +83,30 @@ export const getTripById = async (tripId: string) => {
   }
 };
 
-export const createTrip = async (input: CreateTripFormInput) => {
+export const createTrip = async (
+  tx: Prisma.TransactionClient,
+  userId: string,
+): Promise<TripDTO> => {
+  try {
+    const trip = await tx.trip.create({
+      data: {
+        title: "New Trip",
+        destination: "",
+        interests: [],
+        itineraryJson: {},
+        status: "DRAFT",
+        userId: userId,
+      },
+    });
+
+    return toTripDTO(trip);
+  } catch (err) {
+    console.error("Can't create trip", err);
+    throw new Error("Failed to create user trip");
+  }
+};
+
+export const createPublicTrip = async (input: CreateTripFormInput) => {
   const user = await requireUser();
 
   const data = CreateTripSchema.parse(input);
@@ -101,7 +137,7 @@ export const createTrip = async (input: CreateTripFormInput) => {
   }
 };
 
-export const updateTrip = async (
+export const updatePublicTrip = async (
   tripId: string,
   input: UpdateTripFormInput,
 ) => {

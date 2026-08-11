@@ -95,3 +95,68 @@ export const CreateMessageSchema = z.object({
 export type CreateMessageFormInput = z.input<typeof CreateMessageSchema>;
 
 export type CreateMessageData = z.infer<typeof CreateMessageSchema>;
+
+export const UserPreferencesSchema = z.object({
+  pace: z.enum(["relaxed", "moderate", "fast-paced"]),
+
+  travelStyle: z
+    .enum(["backpacking", "balanced", "luxury", "family", "business"])
+    .nullable(),
+
+  priority: z
+    .array(z.enum(["food", "culture", "nature", "nightlife", "adventure"]))
+    .nullable(),
+
+  dietaryRestrictions: z.array(z.string().trim().min(1)).nullable(),
+
+  spendingFlexibility: z.enum(["strict", "moderate", "flexible"]).nullable(),
+
+  planningStyle: z.enum(["detailed", "minimal", "surprise-me"]).nullable(),
+
+  weatherPreference: z
+    .enum(["warm", "cold", "mixed", "noPreference"])
+    .nullable(),
+
+  avoidCategories: z.array(z.string().trim().min(1)).nullable(),
+});
+
+export type UserPreferences = z.infer<typeof UserPreferencesSchema>;
+
+export const AITripPlanningResponseSchema = z.object({
+  message: z.string().trim(),
+
+  ui: z.object({
+    type: z.enum([
+      "origin",
+      "destination",
+      "groupSize",
+      "budget",
+      "duration",
+      "interests",
+      "travelPreferences",
+      "final",
+    ]),
+  }),
+
+  updatedTripData: z.object({
+    origin: z.string().trim().min(1).nullable(),
+
+    destination: z.string().trim().min(1).nullable(),
+
+    travelers: z.number().int().positive().nullable(),
+
+    budgetTier: z.enum(["budget", "mid-range", "luxury"]).nullable(),
+
+    duration: z.number().int().positive().nullable(),
+
+    interests: z.array(z.string().trim().min(1)),
+  }),
+
+  travelPreferences: UserPreferencesSchema,
+
+  isComplete: z.boolean(),
+});
+
+export type AITripPlanningResponse = z.infer<
+  typeof AITripPlanningResponseSchema
+>;

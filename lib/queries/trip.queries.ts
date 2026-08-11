@@ -2,12 +2,14 @@
 
 import { prisma } from "../db";
 import { requireUser } from "@/auth";
+import { toTripDTO } from "../utils";
+import { TripDTO } from "@/types/global";
 
-export async function getTrips() {
+export async function getTrips(): Promise<TripDTO[]> {
   const user = await requireUser();
 
   try {
-    return prisma.trip.findMany({
+    const trips = await prisma.trip.findMany({
       where: {
         userId: user.id,
       },
@@ -24,11 +26,21 @@ export async function getTrips() {
         budget: true,
         status: true,
         updatedAt: true,
+        travelers: true,
+        budgetTier: true,
+        interests: true,
+        conversation: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
+
+    return trips.map(toTripDTO);
   } catch (err) {
     console.error("Failed to get user trips", err);
-    return [];
+    throw new Error("Failed to fetch trips");
   }
 }
 
@@ -50,8 +62,15 @@ export async function getTripById(tripId: string) {
         endDate: true,
         budget: true,
         status: true,
-        itineraryJson: true, // Crucial: Includes data payload for your frontend planner view
         updatedAt: true,
+        travelers: true,
+        budgetTier: true,
+        interests: true,
+        conversation: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
 

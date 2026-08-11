@@ -3,22 +3,44 @@
 import { useState, useTransition } from "react";
 import ChatInput from "./ChatInput";
 import MessageList from "./MessageList";
-import { ConversationMessage } from "@/types/global";
-import { createMessage } from "@/lib/actions/message.action";
+import {
+  ConversationMessage,
+  PlannerSubmission,
+  PlannerUIEvent,
+} from "@/types/global";
+import { plannerAction } from "@/lib/actions/planner.action";
+import {
+  syncUIPreference,
+  syncTravelPreferencesAction,
+} from "@/lib/actions/sync.action";
+import {
+  AITripPlanningResponse,
+  type UserPreferences,
+} from "@/lib/validations";
+import { startItineraryWithFullSnapshotAction } from "@/lib/actions/generate.action";
 
 const ChatBox = ({
   initialMessages,
   conversationId,
+  tripId,
 }: {
   initialMessages: ConversationMessage[];
   conversationId: string;
+  tripId: string;
 }) => {
   const [messages, setMessages] = useState(initialMessages);
-  const [isPending, startTransition] = useTransition();
+
+  const [tripState, setTripState] = useState<PlannerSubmission>({
+    tripData: {},
+    travelPreferences: null,
+  });
+
+  const [isPlanning, startPlanning] = useTransition();
+
   const [error, setError] = useState<string | null>(null);
 
-  const handleSend = async (content: string) => {
-    if (!content.trim()) return;
+  const sendToPlanner = async (content: string) => {
+    if (!content.trim() || isPlanning) return;
 
     setError(null);
 
@@ -36,50 +58,282 @@ const ChatBox = ({
     // 2. Add optimistic message immediately
     setMessages((prev) => [...prev, tempMessage]);
 
-    startTransition(async () => {
-      // 3. Call server
-      const result = await createMessage(conversationId, { content });
+    startPlanning(async () => {
+      try {
+        // 3. Call Planner AI to help plan user trips
+        const result = await plannerAction(conversationId, content);
 
-      // 4. Handle failure (rollback optimistic message)
-      // Add a check to make sure result.data actually exists too!
-      if (!result.success || !result.data) {
-        setMessages((prev) => prev.filter((m) => m.id !== tempId));
-        setError(result.error || "Failed to send message");
-        return;
+        // 4. Handle AI message failure
+        // Case 1: User message never saved
+        if (!result.success) {
+          if (!result.savedUserMessage) {
+            setMessages((prev) =>
+              prev.filter((message) => message.id !== tempId),
+            );
+          }
+
+          setError(result.error);
+          return;
+        }
+
+        // Case 2A: Replace optimistic message with real database message
+        setMessages((prev) =>
+          prev.map((message) =>
+            message.id === tempId ? result.savedUserMessage : message,
+          ),
+        );
+
+        // Case 2B: AI failed after
+        if (!result.assistantMessage) {
+          setError("Planner failed. Please try again.");
+          return;
+        }
+
+        // Case 3: Everything succeeded
+        setMessages((prev) => [...prev, result.assistantMessage]);
+
+        setTripState((prev) => ({
+          tripData: {
+            ...prev.tripData,
+            ...(result.updatedTripData ?? {}),
+          },
+          travelPreferences: result.travelPreferences ?? prev.travelPreferences,
+        }));
+      } catch (err) {
+        // 6. Handle AI failure
+        setError(err instanceof Error ? err.message : "Something went wrong");
       }
-
-      // 5. Replace optimistic message with real DB message
-      const realMessage = result.data; // TypeScript now knows 100% this is NOT undefined!
-
-      setMessages(
-        (prev) =>
-          prev.map((m) =>
-            m.id === tempId ? { ...realMessage, conversationId } : m,
-          ), // ✅ Now this works perfectly!
-      );
     });
+  };
+
+  const handleSend = sendToPlanner;
+
+  const handleUISubmit = (event: PlannerUIEvent) => {
+    setError(null);
+
+    let deltaPayload:
+      | Partial<AITripPlanningResponse["updatedTripData"]>
+      | UserPreferences = {};
+    let textRepresentation = "";
+    let isPreferenceTrack = false; // Flag to separate the two tracks at the bottom
+
+    switch (event.type) {
+      case "origin":
+        setTripState((prev) => ({
+          ...prev,
+          tripData: { ...prev.tripData, origin: event.value },
+        }));
+        deltaPayload = { origin: event.value };
+        textRepresentation = event.value.toString();
+        break;
+      case "destination":
+        setTripState((prev) => ({
+          ...prev,
+          tripData: { ...prev.tripData, destination: event.value },
+        }));
+        deltaPayload = { destination: event.value };
+        textRepresentation = event.value.toString();
+        break;
+      case "groupSize":
+        setTripState((prev) => ({
+          ...prev,
+          tripData: { ...prev.tripData, travelers: event.value },
+        }));
+        deltaPayload = { travelers: event.value };
+        textRepresentation =
+          event.value === 1 ? "Just 1 traveler" : `${event.value} travelers`;
+        break;
+      case "budget":
+        setTripState((prev) => ({
+          ...prev,
+          tripData: { ...prev.tripData, budgetTier: event.value },
+        }));
+        deltaPayload = { budgetTier: event.value };
+        textRepresentation = `My budget preference is ${event.value}`;
+        break;
+      case "duration":
+        setTripState((prev) => ({
+          ...prev,
+          tripData: { ...prev.tripData, duration: event.value },
+        }));
+        deltaPayload = { duration: event.value };
+        textRepresentation =
+          event.value === 1
+            ? "Planning for a 1-day trip"
+            : `Planning for a ${event.value}-day trip`;
+        break;
+      case "interests":
+        setTripState((prev) => ({
+          ...prev,
+          tripData: { ...prev.tripData, interests: event.value },
+        }));
+        deltaPayload = { interests: event.value };
+        textRepresentation = event.value.join(", ");
+        break;
+
+      case "travelPreferences":
+        setTripState((prev) => ({ ...prev, travelPreferences: event.value }));
+
+        // 🔥 Separate Track: Package the preferences data payload
+        deltaPayload = event.value;
+        isPreferenceTrack = true;
+
+        const p = event.value;
+        const details: string[] = [];
+        // 1. Core Profile Configurations
+        if (p?.pace) details.push(`a ${p.pace} pace`);
+        if (p?.travelStyle) details.push(`a ${p.travelStyle} travel style`);
+
+        // 2. Arrays & Content Filters
+        if (p?.priority && p.priority.length > 0) {
+          details.push(`prioritizing ${p.priority.join(" & ")}`);
+        }
+        if (p?.dietaryRestrictions && p.dietaryRestrictions.length > 0) {
+          details.push(
+            `with dietary restrictions for ${p.dietaryRestrictions.join(" & ")}`,
+          );
+        }
+        if (p?.avoidCategories && p.avoidCategories.length > 0) {
+          details.push(
+            `while completely avoiding ${p.avoidCategories.join(" & ")}`,
+          );
+        }
+
+        // 3. Financial, Planning, and Climate Enums
+        if (p?.spendingFlexibility) {
+          details.push(`with a ${p.spendingFlexibility} budget flexibility`);
+        }
+        if (p?.planningStyle) {
+          details.push(`preferring a ${p.planningStyle} planning style`);
+        }
+        if (p?.weatherPreference && p.weatherPreference !== "noPreference") {
+          details.push(`preferring ${p.weatherPreference} weather`);
+        }
+
+        textRepresentation =
+          details.length > 0
+            ? `I'd prefer ${details.join(", ")}.`
+            : "Saved my travel preferences.";
+        break;
+      case "final":
+        /* * The FinalSummaryTicket gives us the complete * PlannerSubmission. * * This is the gateway into Phase 4B. * * DO NOT generate the itinerary here yet unless * your Phase 4B action already exists. */
+        setTripState(event.value);
+
+        // TODO: start Phase 4B itinerary generation and remove this comment when done Phase 4B //
+        (async () => {
+          try {
+            // 1. Fire the full unified snapshot directly to your Generation Orchestrator
+            // Note: Since Clerk user tracking lives on the server, your server action
+            // will extract the clerkUserId from auth() automatically!
+            const res = await startItineraryWithFullSnapshotAction(
+              tripId,
+              event.value,
+            );
+
+            if (!res.success) {
+              setError(res.error || "Failed to start building your itinerary.");
+              return;
+            }
+
+            // 2. Append a clean confirmation narrative to the chat history list log
+            await sendToPlanner(
+              "Everything looks perfect! Let's build my itinerary.",
+            );
+
+            // 3. PROGRESSION ADVANCEMENT: At this point, your layout can show a
+            // cinematic loader, or your real-time listeners will automatically load Phase 5!
+            console.log("🚀 Phase 4B Gateway Initialized Successfully!");
+          } catch (err) {
+            console.error("Catastrophic generation gateway failure:", err);
+            setError(
+              "A critical network error occurred while launching the itinerary engine.",
+            );
+          }
+        })();
+        break;
+      default: /* * TypeScript should make this unreachable because * PlannerUIEvent is a discriminated union. */
+        break;
+    }
+
+    // 🔥 To Fix the State Lifecycle Lock problem between UI Components and AI Conversation: Asynchronously synchronize the tracks/lanes without state-locking your engine!
+    if (deltaPayload) {
+      // 1. Instead of using startPlanning, run as a standard async operation to control each step sequence
+      (async () => {
+        // 🔥 Fire Asynchronous System Execution Pipeline where AI can fire trip or preference tracks
+        try {
+          // Now I have the options to track the transaction loading feedback on the UI via your transition hooks if needed,
+          // or let it execute quietly in the background as an intentional express track!
+          let res;
+
+          if (isPreferenceTrack) {
+            // Lane A: Fire preferences payload directly to the User Profile table
+            res = await syncTravelPreferencesAction(
+              deltaPayload as UserPreferences,
+            );
+          } else {
+            // Lane B: Fire trip payload directly to the Trip table
+            res = await syncUIPreference(
+              tripId,
+              deltaPayload as Partial<
+                AITripPlanningResponse["updatedTripData"]
+              >,
+            );
+          }
+
+          if (!res.success) {
+            setError(
+              "Your choice was updated locally, but failed to sync to the server.",
+            );
+            return;
+          }
+          if (!res.success) {
+            setError(
+              "Your choice was updated locally, but failed to sync to the server.",
+            );
+          }
+
+          // 2. Clear any residual errors from previous errors
+          setError(null);
+
+          // 3. Trigger the conversaional engine to advance the AI conversation smoothly
+          await sendToPlanner(textRepresentation);
+        } catch (err) {
+          // Handle a catastrophic network/runtime failure (e.g., server offline, timeout)
+          console.error("Catastrophic UI synchronization failure:", err);
+          setError(
+            err instanceof Error
+              ? `Network error: ${err.message}`
+              : "A critical network error occurred while saving your choice.",
+          );
+        }
+      })();
+    }
   };
 
   return (
     <div className="h-[90vh] flex flex-col">
-      <MessageList messages={messages} />
+      <MessageList
+        messages={messages}
+        tripState={tripState}
+        onUISubmit={handleUISubmit}
+      />
 
       {/* Floating or Inline indicators look much cleaner */}
       <div className="px-4">
-        {isPending && (
-          <p className="text-xs text-gray-400 font-medium animate-pulse mb-1">
-            Sending message...
+        {isPlanning && (
+          <p className="text-base text-gray-400 font-medium animate-pulse mb-1">
+            Planning your trip...
           </p>
         )}
 
         {error && (
-          <p className="text-xs text-red-600 font-semibold bg-red-50 p-2 rounded-md border border-red-200 mb-2">
+          <p className="text-base text-red-600 font-semibold bg-red-50 p-2 rounded-md border border-red-200 mb-2">
             Error: {error}
           </p>
         )}
       </div>
 
-      <ChatInput onSend={handleSend} isLoading={isPending} />
+      <ChatInput onSend={handleSend} isLoading={isPlanning} />
     </div>
   );
 };

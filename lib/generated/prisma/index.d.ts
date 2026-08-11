@@ -55,10 +55,32 @@ export type TripStatus = (typeof TripStatus)[keyof typeof TripStatus]
 
 export const MessageRole: {
   USER: 'USER',
-  ASSISTANT: 'ASSISTANT'
+  ASSISTANT: 'ASSISTANT',
+  SYSTEM: 'SYSTEM',
+  DEVELOPER: 'DEVELOPER'
 };
 
 export type MessageRole = (typeof MessageRole)[keyof typeof MessageRole]
+
+
+export const BudgetTier: {
+  BUDGET: 'BUDGET',
+  MID_RANGE: 'MID_RANGE',
+  LUXURY: 'LUXURY'
+};
+
+export type BudgetTier = (typeof BudgetTier)[keyof typeof BudgetTier]
+
+
+export const GroupType: {
+  SOLO: 'SOLO',
+  COUPLE: 'COUPLE',
+  FAMILY: 'FAMILY',
+  FRIENDS: 'FRIENDS',
+  BUSINESS: 'BUSINESS'
+};
+
+export type GroupType = (typeof GroupType)[keyof typeof GroupType]
 
 }
 
@@ -69,6 +91,14 @@ export const TripStatus: typeof $Enums.TripStatus
 export type MessageRole = $Enums.MessageRole
 
 export const MessageRole: typeof $Enums.MessageRole
+
+export type BudgetTier = $Enums.BudgetTier
+
+export const BudgetTier: typeof $Enums.BudgetTier
+
+export type GroupType = $Enums.GroupType
+
+export const GroupType: typeof $Enums.GroupType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -2623,7 +2653,7 @@ export namespace Prisma {
   export type ConversationGroupByOutputType = {
     id: string
     userId: string
-    tripId: string | null
+    tripId: string
     createdAt: Date
     updatedAt: Date
     _count: ConversationCountAggregateOutputType | null
@@ -2652,7 +2682,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
-    trip?: boolean | Conversation$tripArgs<ExtArgs>
+    trip?: boolean | TripDefaultArgs<ExtArgs>
     messages?: boolean | Conversation$messagesArgs<ExtArgs>
     _count?: boolean | ConversationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["conversation"]>
@@ -2664,7 +2694,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
-    trip?: boolean | Conversation$tripArgs<ExtArgs>
+    trip?: boolean | TripDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["conversation"]>
 
   export type ConversationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2674,7 +2704,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
-    trip?: boolean | Conversation$tripArgs<ExtArgs>
+    trip?: boolean | TripDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["conversation"]>
 
   export type ConversationSelectScalar = {
@@ -2688,30 +2718,30 @@ export namespace Prisma {
   export type ConversationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "tripId" | "createdAt" | "updatedAt", ExtArgs["result"]["conversation"]>
   export type ConversationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
-    trip?: boolean | Conversation$tripArgs<ExtArgs>
+    trip?: boolean | TripDefaultArgs<ExtArgs>
     messages?: boolean | Conversation$messagesArgs<ExtArgs>
     _count?: boolean | ConversationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ConversationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
-    trip?: boolean | Conversation$tripArgs<ExtArgs>
+    trip?: boolean | TripDefaultArgs<ExtArgs>
   }
   export type ConversationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
-    trip?: boolean | Conversation$tripArgs<ExtArgs>
+    trip?: boolean | TripDefaultArgs<ExtArgs>
   }
 
   export type $ConversationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Conversation"
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
-      trip: Prisma.$TripPayload<ExtArgs> | null
+      trip: Prisma.$TripPayload<ExtArgs>
       messages: Prisma.$MessagePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string
-      tripId: string | null
+      tripId: string
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["conversation"]>
@@ -3109,7 +3139,7 @@ export namespace Prisma {
   export interface Prisma__ConversationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    trip<T extends Conversation$tripArgs<ExtArgs> = {}>(args?: Subset<T, Conversation$tripArgs<ExtArgs>>): Prisma__TripClient<$Result.GetResult<Prisma.$TripPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    trip<T extends TripDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TripDefaultArgs<ExtArgs>>): Prisma__TripClient<$Result.GetResult<Prisma.$TripPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     messages<T extends Conversation$messagesArgs<ExtArgs> = {}>(args?: Subset<T, Conversation$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -3546,25 +3576,6 @@ export namespace Prisma {
   }
 
   /**
-   * Conversation.trip
-   */
-  export type Conversation$tripArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Trip
-     */
-    select?: TripSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Trip
-     */
-    omit?: TripOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TripInclude<ExtArgs> | null
-    where?: TripWhereInput
-  }
-
-  /**
    * Conversation.messages
    */
   export type Conversation$messagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3621,10 +3632,12 @@ export namespace Prisma {
 
   export type TripAvgAggregateOutputType = {
     budget: number | null
+    travelers: number | null
   }
 
   export type TripSumAggregateOutputType = {
     budget: number | null
+    travelers: number | null
   }
 
   export type TripMinAggregateOutputType = {
@@ -3635,6 +3648,9 @@ export namespace Prisma {
     startDate: Date | null
     endDate: Date | null
     budget: number | null
+    budgetTier: $Enums.BudgetTier | null
+    travelers: number | null
+    groupType: $Enums.GroupType | null
     status: $Enums.TripStatus | null
     userId: string | null
     createdAt: Date | null
@@ -3649,6 +3665,9 @@ export namespace Prisma {
     startDate: Date | null
     endDate: Date | null
     budget: number | null
+    budgetTier: $Enums.BudgetTier | null
+    travelers: number | null
+    groupType: $Enums.GroupType | null
     status: $Enums.TripStatus | null
     userId: string | null
     createdAt: Date | null
@@ -3663,6 +3682,10 @@ export namespace Prisma {
     startDate: number
     endDate: number
     budget: number
+    budgetTier: number
+    travelers: number
+    groupType: number
+    interests: number
     status: number
     itineraryJson: number
     userId: number
@@ -3674,10 +3697,12 @@ export namespace Prisma {
 
   export type TripAvgAggregateInputType = {
     budget?: true
+    travelers?: true
   }
 
   export type TripSumAggregateInputType = {
     budget?: true
+    travelers?: true
   }
 
   export type TripMinAggregateInputType = {
@@ -3688,6 +3713,9 @@ export namespace Prisma {
     startDate?: true
     endDate?: true
     budget?: true
+    budgetTier?: true
+    travelers?: true
+    groupType?: true
     status?: true
     userId?: true
     createdAt?: true
@@ -3702,6 +3730,9 @@ export namespace Prisma {
     startDate?: true
     endDate?: true
     budget?: true
+    budgetTier?: true
+    travelers?: true
+    groupType?: true
     status?: true
     userId?: true
     createdAt?: true
@@ -3716,6 +3747,10 @@ export namespace Prisma {
     startDate?: true
     endDate?: true
     budget?: true
+    budgetTier?: true
+    travelers?: true
+    groupType?: true
+    interests?: true
     status?: true
     itineraryJson?: true
     userId?: true
@@ -3818,6 +3853,10 @@ export namespace Prisma {
     startDate: Date | null
     endDate: Date | null
     budget: number | null
+    budgetTier: $Enums.BudgetTier | null
+    travelers: number | null
+    groupType: $Enums.GroupType | null
+    interests: string[]
     status: $Enums.TripStatus
     itineraryJson: JsonValue
     userId: string
@@ -3852,6 +3891,10 @@ export namespace Prisma {
     startDate?: boolean
     endDate?: boolean
     budget?: boolean
+    budgetTier?: boolean
+    travelers?: boolean
+    groupType?: boolean
+    interests?: boolean
     status?: boolean
     itineraryJson?: boolean
     userId?: boolean
@@ -3871,6 +3914,10 @@ export namespace Prisma {
     startDate?: boolean
     endDate?: boolean
     budget?: boolean
+    budgetTier?: boolean
+    travelers?: boolean
+    groupType?: boolean
+    interests?: boolean
     status?: boolean
     itineraryJson?: boolean
     userId?: boolean
@@ -3887,6 +3934,10 @@ export namespace Prisma {
     startDate?: boolean
     endDate?: boolean
     budget?: boolean
+    budgetTier?: boolean
+    travelers?: boolean
+    groupType?: boolean
+    interests?: boolean
     status?: boolean
     itineraryJson?: boolean
     userId?: boolean
@@ -3903,6 +3954,10 @@ export namespace Prisma {
     startDate?: boolean
     endDate?: boolean
     budget?: boolean
+    budgetTier?: boolean
+    travelers?: boolean
+    groupType?: boolean
+    interests?: boolean
     status?: boolean
     itineraryJson?: boolean
     userId?: boolean
@@ -3910,7 +3965,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type TripOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "destination" | "origin" | "startDate" | "endDate" | "budget" | "status" | "itineraryJson" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["trip"]>
+  export type TripOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "destination" | "origin" | "startDate" | "endDate" | "budget" | "budgetTier" | "travelers" | "groupType" | "interests" | "status" | "itineraryJson" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["trip"]>
   export type TripInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     versions?: boolean | Trip$versionsArgs<ExtArgs>
@@ -3939,6 +3994,10 @@ export namespace Prisma {
       startDate: Date | null
       endDate: Date | null
       budget: number | null
+      budgetTier: $Enums.BudgetTier | null
+      travelers: number | null
+      groupType: $Enums.GroupType | null
+      interests: string[]
       status: $Enums.TripStatus
       itineraryJson: Prisma.JsonValue
       userId: string
@@ -4377,6 +4436,10 @@ export namespace Prisma {
     readonly startDate: FieldRef<"Trip", 'DateTime'>
     readonly endDate: FieldRef<"Trip", 'DateTime'>
     readonly budget: FieldRef<"Trip", 'Float'>
+    readonly budgetTier: FieldRef<"Trip", 'BudgetTier'>
+    readonly travelers: FieldRef<"Trip", 'Int'>
+    readonly groupType: FieldRef<"Trip", 'GroupType'>
+    readonly interests: FieldRef<"Trip", 'String[]'>
     readonly status: FieldRef<"Trip", 'TripStatus'>
     readonly itineraryJson: FieldRef<"Trip", 'Json'>
     readonly userId: FieldRef<"Trip", 'String'>
@@ -7072,6 +7135,10 @@ export namespace Prisma {
     startDate: 'startDate',
     endDate: 'endDate',
     budget: 'budget',
+    budgetTier: 'budgetTier',
+    travelers: 'travelers',
+    groupType: 'groupType',
+    interests: 'interests',
     status: 'status',
     itineraryJson: 'itineraryJson',
     userId: 'userId',
@@ -7208,6 +7275,48 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'BudgetTier'
+   */
+  export type EnumBudgetTierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BudgetTier'>
+    
+
+
+  /**
+   * Reference to a field of type 'BudgetTier[]'
+   */
+  export type ListEnumBudgetTierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BudgetTier[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'GroupType'
+   */
+  export type EnumGroupTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GroupType'>
+    
+
+
+  /**
+   * Reference to a field of type 'GroupType[]'
+   */
+  export type ListEnumGroupTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GroupType[]'>
+    
+
+
+  /**
    * Reference to a field of type 'TripStatus'
    */
   export type EnumTripStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TripStatus'>
@@ -7232,20 +7341,6 @@ export namespace Prisma {
    * Reference to a field of type 'MessageRole[]'
    */
   export type ListEnumMessageRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MessageRole[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int'
-   */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int[]'
-   */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
   /**
    * Deep Input Types
@@ -7326,18 +7421,18 @@ export namespace Prisma {
     NOT?: ConversationWhereInput | ConversationWhereInput[]
     id?: StringFilter<"Conversation"> | string
     userId?: StringFilter<"Conversation"> | string
-    tripId?: StringNullableFilter<"Conversation"> | string | null
+    tripId?: StringFilter<"Conversation"> | string
     createdAt?: DateTimeFilter<"Conversation"> | Date | string
     updatedAt?: DateTimeFilter<"Conversation"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    trip?: XOR<TripNullableScalarRelationFilter, TripWhereInput> | null
+    trip?: XOR<TripScalarRelationFilter, TripWhereInput>
     messages?: MessageListRelationFilter
   }
 
   export type ConversationOrderByWithRelationInput = {
     id?: SortOrder
     userId?: SortOrder
-    tripId?: SortOrderInput | SortOrder
+    tripId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -7355,14 +7450,14 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Conversation"> | Date | string
     updatedAt?: DateTimeFilter<"Conversation"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    trip?: XOR<TripNullableScalarRelationFilter, TripWhereInput> | null
+    trip?: XOR<TripScalarRelationFilter, TripWhereInput>
     messages?: MessageListRelationFilter
   }, "id" | "tripId">
 
   export type ConversationOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrder
-    tripId?: SortOrderInput | SortOrder
+    tripId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ConversationCountOrderByAggregateInput
@@ -7376,7 +7471,7 @@ export namespace Prisma {
     NOT?: ConversationScalarWhereWithAggregatesInput | ConversationScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Conversation"> | string
     userId?: StringWithAggregatesFilter<"Conversation"> | string
-    tripId?: StringNullableWithAggregatesFilter<"Conversation"> | string | null
+    tripId?: StringWithAggregatesFilter<"Conversation"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Conversation"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Conversation"> | Date | string
   }
@@ -7392,6 +7487,10 @@ export namespace Prisma {
     startDate?: DateTimeNullableFilter<"Trip"> | Date | string | null
     endDate?: DateTimeNullableFilter<"Trip"> | Date | string | null
     budget?: FloatNullableFilter<"Trip"> | number | null
+    budgetTier?: EnumBudgetTierNullableFilter<"Trip"> | $Enums.BudgetTier | null
+    travelers?: IntNullableFilter<"Trip"> | number | null
+    groupType?: EnumGroupTypeNullableFilter<"Trip"> | $Enums.GroupType | null
+    interests?: StringNullableListFilter<"Trip">
     status?: EnumTripStatusFilter<"Trip"> | $Enums.TripStatus
     itineraryJson?: JsonFilter<"Trip">
     userId?: StringFilter<"Trip"> | string
@@ -7410,6 +7509,10 @@ export namespace Prisma {
     startDate?: SortOrderInput | SortOrder
     endDate?: SortOrderInput | SortOrder
     budget?: SortOrderInput | SortOrder
+    budgetTier?: SortOrderInput | SortOrder
+    travelers?: SortOrderInput | SortOrder
+    groupType?: SortOrderInput | SortOrder
+    interests?: SortOrder
     status?: SortOrder
     itineraryJson?: SortOrder
     userId?: SortOrder
@@ -7431,6 +7534,10 @@ export namespace Prisma {
     startDate?: DateTimeNullableFilter<"Trip"> | Date | string | null
     endDate?: DateTimeNullableFilter<"Trip"> | Date | string | null
     budget?: FloatNullableFilter<"Trip"> | number | null
+    budgetTier?: EnumBudgetTierNullableFilter<"Trip"> | $Enums.BudgetTier | null
+    travelers?: IntNullableFilter<"Trip"> | number | null
+    groupType?: EnumGroupTypeNullableFilter<"Trip"> | $Enums.GroupType | null
+    interests?: StringNullableListFilter<"Trip">
     status?: EnumTripStatusFilter<"Trip"> | $Enums.TripStatus
     itineraryJson?: JsonFilter<"Trip">
     userId?: StringFilter<"Trip"> | string
@@ -7449,6 +7556,10 @@ export namespace Prisma {
     startDate?: SortOrderInput | SortOrder
     endDate?: SortOrderInput | SortOrder
     budget?: SortOrderInput | SortOrder
+    budgetTier?: SortOrderInput | SortOrder
+    travelers?: SortOrderInput | SortOrder
+    groupType?: SortOrderInput | SortOrder
+    interests?: SortOrder
     status?: SortOrder
     itineraryJson?: SortOrder
     userId?: SortOrder
@@ -7472,6 +7583,10 @@ export namespace Prisma {
     startDate?: DateTimeNullableWithAggregatesFilter<"Trip"> | Date | string | null
     endDate?: DateTimeNullableWithAggregatesFilter<"Trip"> | Date | string | null
     budget?: FloatNullableWithAggregatesFilter<"Trip"> | number | null
+    budgetTier?: EnumBudgetTierNullableWithAggregatesFilter<"Trip"> | $Enums.BudgetTier | null
+    travelers?: IntNullableWithAggregatesFilter<"Trip"> | number | null
+    groupType?: EnumGroupTypeNullableWithAggregatesFilter<"Trip"> | $Enums.GroupType | null
+    interests?: StringNullableListFilter<"Trip">
     status?: EnumTripStatusWithAggregatesFilter<"Trip"> | $Enums.TripStatus
     itineraryJson?: JsonWithAggregatesFilter<"Trip">
     userId?: StringWithAggregatesFilter<"Trip"> | string
@@ -7685,14 +7800,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutConversationsInput
-    trip?: TripCreateNestedOneWithoutConversationInput
+    trip: TripCreateNestedOneWithoutConversationInput
     messages?: MessageCreateNestedManyWithoutConversationInput
   }
 
   export type ConversationUncheckedCreateInput = {
     id?: string
     userId: string
-    tripId?: string | null
+    tripId: string
     createdAt?: Date | string
     updatedAt?: Date | string
     messages?: MessageUncheckedCreateNestedManyWithoutConversationInput
@@ -7703,14 +7818,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutConversationsNestedInput
-    trip?: TripUpdateOneWithoutConversationNestedInput
+    trip?: TripUpdateOneRequiredWithoutConversationNestedInput
     messages?: MessageUpdateManyWithoutConversationNestedInput
   }
 
   export type ConversationUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
+    tripId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     messages?: MessageUncheckedUpdateManyWithoutConversationNestedInput
@@ -7719,7 +7834,7 @@ export namespace Prisma {
   export type ConversationCreateManyInput = {
     id?: string
     userId: string
-    tripId?: string | null
+    tripId: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -7733,7 +7848,7 @@ export namespace Prisma {
   export type ConversationUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
+    tripId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7746,6 +7861,10 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     budget?: number | null
+    budgetTier?: $Enums.BudgetTier | null
+    travelers?: number | null
+    groupType?: $Enums.GroupType | null
+    interests?: TripCreateinterestsInput | string[]
     status?: $Enums.TripStatus
     itineraryJson: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -7763,6 +7882,10 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     budget?: number | null
+    budgetTier?: $Enums.BudgetTier | null
+    travelers?: number | null
+    groupType?: $Enums.GroupType | null
+    interests?: TripCreateinterestsInput | string[]
     status?: $Enums.TripStatus
     itineraryJson: JsonNullValueInput | InputJsonValue
     userId: string
@@ -7780,6 +7903,10 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    budgetTier?: NullableEnumBudgetTierFieldUpdateOperationsInput | $Enums.BudgetTier | null
+    travelers?: NullableIntFieldUpdateOperationsInput | number | null
+    groupType?: NullableEnumGroupTypeFieldUpdateOperationsInput | $Enums.GroupType | null
+    interests?: TripUpdateinterestsInput | string[]
     status?: EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
     itineraryJson?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7797,6 +7924,10 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    budgetTier?: NullableEnumBudgetTierFieldUpdateOperationsInput | $Enums.BudgetTier | null
+    travelers?: NullableIntFieldUpdateOperationsInput | number | null
+    groupType?: NullableEnumGroupTypeFieldUpdateOperationsInput | $Enums.GroupType | null
+    interests?: TripUpdateinterestsInput | string[]
     status?: EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
     itineraryJson?: JsonNullValueInput | InputJsonValue
     userId?: StringFieldUpdateOperationsInput | string
@@ -7814,6 +7945,10 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     budget?: number | null
+    budgetTier?: $Enums.BudgetTier | null
+    travelers?: number | null
+    groupType?: $Enums.GroupType | null
+    interests?: TripCreateinterestsInput | string[]
     status?: $Enums.TripStatus
     itineraryJson: JsonNullValueInput | InputJsonValue
     userId: string
@@ -7829,6 +7964,10 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    budgetTier?: NullableEnumBudgetTierFieldUpdateOperationsInput | $Enums.BudgetTier | null
+    travelers?: NullableIntFieldUpdateOperationsInput | number | null
+    groupType?: NullableEnumGroupTypeFieldUpdateOperationsInput | $Enums.GroupType | null
+    interests?: TripUpdateinterestsInput | string[]
     status?: EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
     itineraryJson?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7843,6 +7982,10 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    budgetTier?: NullableEnumBudgetTierFieldUpdateOperationsInput | $Enums.BudgetTier | null
+    travelers?: NullableIntFieldUpdateOperationsInput | number | null
+    groupType?: NullableEnumGroupTypeFieldUpdateOperationsInput | $Enums.GroupType | null
+    interests?: TripUpdateinterestsInput | string[]
     status?: EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
     itineraryJson?: JsonNullValueInput | InputJsonValue
     userId?: StringFieldUpdateOperationsInput | string
@@ -8172,9 +8315,9 @@ export namespace Prisma {
     isNot?: UserWhereInput
   }
 
-  export type TripNullableScalarRelationFilter = {
-    is?: TripWhereInput | null
-    isNot?: TripWhereInput | null
+  export type TripScalarRelationFilter = {
+    is?: TripWhereInput
+    isNot?: TripWhereInput
   }
 
   export type MessageListRelationFilter = {
@@ -8233,6 +8376,39 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type EnumBudgetTierNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.BudgetTier | EnumBudgetTierFieldRefInput<$PrismaModel> | null
+    in?: $Enums.BudgetTier[] | ListEnumBudgetTierFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.BudgetTier[] | ListEnumBudgetTierFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumBudgetTierNullableFilter<$PrismaModel> | $Enums.BudgetTier | null
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type EnumGroupTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.GroupType | EnumGroupTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.GroupType[] | ListEnumGroupTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.GroupType[] | ListEnumGroupTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumGroupTypeNullableFilter<$PrismaModel> | $Enums.GroupType | null
+  }
+
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
   export type EnumTripStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.TripStatus | EnumTripStatusFieldRefInput<$PrismaModel>
     in?: $Enums.TripStatus[] | ListEnumTripStatusFieldRefInput<$PrismaModel>
@@ -8263,6 +8439,10 @@ export namespace Prisma {
     startDate?: SortOrder
     endDate?: SortOrder
     budget?: SortOrder
+    budgetTier?: SortOrder
+    travelers?: SortOrder
+    groupType?: SortOrder
+    interests?: SortOrder
     status?: SortOrder
     itineraryJson?: SortOrder
     userId?: SortOrder
@@ -8272,6 +8452,7 @@ export namespace Prisma {
 
   export type TripAvgOrderByAggregateInput = {
     budget?: SortOrder
+    travelers?: SortOrder
   }
 
   export type TripMaxOrderByAggregateInput = {
@@ -8282,6 +8463,9 @@ export namespace Prisma {
     startDate?: SortOrder
     endDate?: SortOrder
     budget?: SortOrder
+    budgetTier?: SortOrder
+    travelers?: SortOrder
+    groupType?: SortOrder
     status?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -8296,6 +8480,9 @@ export namespace Prisma {
     startDate?: SortOrder
     endDate?: SortOrder
     budget?: SortOrder
+    budgetTier?: SortOrder
+    travelers?: SortOrder
+    groupType?: SortOrder
     status?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -8304,6 +8491,7 @@ export namespace Prisma {
 
   export type TripSumOrderByAggregateInput = {
     budget?: SortOrder
+    travelers?: SortOrder
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -8334,6 +8522,42 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type EnumBudgetTierNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BudgetTier | EnumBudgetTierFieldRefInput<$PrismaModel> | null
+    in?: $Enums.BudgetTier[] | ListEnumBudgetTierFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.BudgetTier[] | ListEnumBudgetTierFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumBudgetTierNullableWithAggregatesFilter<$PrismaModel> | $Enums.BudgetTier | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumBudgetTierNullableFilter<$PrismaModel>
+    _max?: NestedEnumBudgetTierNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type EnumGroupTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GroupType | EnumGroupTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.GroupType[] | ListEnumGroupTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.GroupType[] | ListEnumGroupTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumGroupTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.GroupType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumGroupTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumGroupTypeNullableFilter<$PrismaModel>
   }
 
   export type EnumTripStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -8401,11 +8625,6 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntFilter<$PrismaModel> | number
-  }
-
-  export type TripScalarRelationFilter = {
-    is?: TripWhereInput
-    isNot?: TripWhereInput
   }
 
   export type TripVersionTripIdVersionNumberCompoundUniqueInput = {
@@ -8595,12 +8814,10 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutConversationsInput, UserUpdateWithoutConversationsInput>, UserUncheckedUpdateWithoutConversationsInput>
   }
 
-  export type TripUpdateOneWithoutConversationNestedInput = {
+  export type TripUpdateOneRequiredWithoutConversationNestedInput = {
     create?: XOR<TripCreateWithoutConversationInput, TripUncheckedCreateWithoutConversationInput>
     connectOrCreate?: TripCreateOrConnectWithoutConversationInput
     upsert?: TripUpsertWithoutConversationInput
-    disconnect?: TripWhereInput | boolean
-    delete?: TripWhereInput | boolean
     connect?: TripWhereUniqueInput
     update?: XOR<XOR<TripUpdateToOneWithWhereWithoutConversationInput, TripUpdateWithoutConversationInput>, TripUncheckedUpdateWithoutConversationInput>
   }
@@ -8631,6 +8848,10 @@ export namespace Prisma {
     update?: MessageUpdateWithWhereUniqueWithoutConversationInput | MessageUpdateWithWhereUniqueWithoutConversationInput[]
     updateMany?: MessageUpdateManyWithWhereWithoutConversationInput | MessageUpdateManyWithWhereWithoutConversationInput[]
     deleteMany?: MessageScalarWhereInput | MessageScalarWhereInput[]
+  }
+
+  export type TripCreateinterestsInput = {
+    set: string[]
   }
 
   export type UserCreateNestedOneWithoutTripsInput = {
@@ -8675,6 +8896,27 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type NullableEnumBudgetTierFieldUpdateOperationsInput = {
+    set?: $Enums.BudgetTier | null
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableEnumGroupTypeFieldUpdateOperationsInput = {
+    set?: $Enums.GroupType | null
+  }
+
+  export type TripUpdateinterestsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type EnumTripStatusFieldUpdateOperationsInput = {
@@ -8931,6 +9173,20 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type NestedEnumBudgetTierNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.BudgetTier | EnumBudgetTierFieldRefInput<$PrismaModel> | null
+    in?: $Enums.BudgetTier[] | ListEnumBudgetTierFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.BudgetTier[] | ListEnumBudgetTierFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumBudgetTierNullableFilter<$PrismaModel> | $Enums.BudgetTier | null
+  }
+
+  export type NestedEnumGroupTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.GroupType | EnumGroupTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.GroupType[] | ListEnumGroupTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.GroupType[] | ListEnumGroupTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumGroupTypeNullableFilter<$PrismaModel> | $Enums.GroupType | null
+  }
+
   export type NestedEnumTripStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.TripStatus | EnumTripStatusFieldRefInput<$PrismaModel>
     in?: $Enums.TripStatus[] | ListEnumTripStatusFieldRefInput<$PrismaModel>
@@ -8966,6 +9222,42 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumBudgetTierNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BudgetTier | EnumBudgetTierFieldRefInput<$PrismaModel> | null
+    in?: $Enums.BudgetTier[] | ListEnumBudgetTierFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.BudgetTier[] | ListEnumBudgetTierFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumBudgetTierNullableWithAggregatesFilter<$PrismaModel> | $Enums.BudgetTier | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumBudgetTierNullableFilter<$PrismaModel>
+    _max?: NestedEnumBudgetTierNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumGroupTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GroupType | EnumGroupTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.GroupType[] | ListEnumGroupTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.GroupType[] | ListEnumGroupTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumGroupTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.GroupType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumGroupTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumGroupTypeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumTripStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -9030,6 +9322,10 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     budget?: number | null
+    budgetTier?: $Enums.BudgetTier | null
+    travelers?: number | null
+    groupType?: $Enums.GroupType | null
+    interests?: TripCreateinterestsInput | string[]
     status?: $Enums.TripStatus
     itineraryJson: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -9046,6 +9342,10 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     budget?: number | null
+    budgetTier?: $Enums.BudgetTier | null
+    travelers?: number | null
+    groupType?: $Enums.GroupType | null
+    interests?: TripCreateinterestsInput | string[]
     status?: $Enums.TripStatus
     itineraryJson: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -9068,13 +9368,13 @@ export namespace Prisma {
     id?: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    trip?: TripCreateNestedOneWithoutConversationInput
+    trip: TripCreateNestedOneWithoutConversationInput
     messages?: MessageCreateNestedManyWithoutConversationInput
   }
 
   export type ConversationUncheckedCreateWithoutUserInput = {
     id?: string
-    tripId?: string | null
+    tripId: string
     createdAt?: Date | string
     updatedAt?: Date | string
     messages?: MessageUncheckedCreateNestedManyWithoutConversationInput
@@ -9117,6 +9417,10 @@ export namespace Prisma {
     startDate?: DateTimeNullableFilter<"Trip"> | Date | string | null
     endDate?: DateTimeNullableFilter<"Trip"> | Date | string | null
     budget?: FloatNullableFilter<"Trip"> | number | null
+    budgetTier?: EnumBudgetTierNullableFilter<"Trip"> | $Enums.BudgetTier | null
+    travelers?: IntNullableFilter<"Trip"> | number | null
+    groupType?: EnumGroupTypeNullableFilter<"Trip"> | $Enums.GroupType | null
+    interests?: StringNullableListFilter<"Trip">
     status?: EnumTripStatusFilter<"Trip"> | $Enums.TripStatus
     itineraryJson?: JsonFilter<"Trip">
     userId?: StringFilter<"Trip"> | string
@@ -9146,7 +9450,7 @@ export namespace Prisma {
     NOT?: ConversationScalarWhereInput | ConversationScalarWhereInput[]
     id?: StringFilter<"Conversation"> | string
     userId?: StringFilter<"Conversation"> | string
-    tripId?: StringNullableFilter<"Conversation"> | string | null
+    tripId?: StringFilter<"Conversation"> | string
     createdAt?: DateTimeFilter<"Conversation"> | Date | string
     updatedAt?: DateTimeFilter<"Conversation"> | Date | string
   }
@@ -9186,6 +9490,10 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     budget?: number | null
+    budgetTier?: $Enums.BudgetTier | null
+    travelers?: number | null
+    groupType?: $Enums.GroupType | null
+    interests?: TripCreateinterestsInput | string[]
     status?: $Enums.TripStatus
     itineraryJson: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -9202,6 +9510,10 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     budget?: number | null
+    budgetTier?: $Enums.BudgetTier | null
+    travelers?: number | null
+    groupType?: $Enums.GroupType | null
+    interests?: TripCreateinterestsInput | string[]
     status?: $Enums.TripStatus
     itineraryJson: JsonNullValueInput | InputJsonValue
     userId: string
@@ -9291,6 +9603,10 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    budgetTier?: NullableEnumBudgetTierFieldUpdateOperationsInput | $Enums.BudgetTier | null
+    travelers?: NullableIntFieldUpdateOperationsInput | number | null
+    groupType?: NullableEnumGroupTypeFieldUpdateOperationsInput | $Enums.GroupType | null
+    interests?: TripUpdateinterestsInput | string[]
     status?: EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
     itineraryJson?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9307,6 +9623,10 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    budgetTier?: NullableEnumBudgetTierFieldUpdateOperationsInput | $Enums.BudgetTier | null
+    travelers?: NullableIntFieldUpdateOperationsInput | number | null
+    groupType?: NullableEnumGroupTypeFieldUpdateOperationsInput | $Enums.GroupType | null
+    interests?: TripUpdateinterestsInput | string[]
     status?: EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
     itineraryJson?: JsonNullValueInput | InputJsonValue
     userId?: StringFieldUpdateOperationsInput | string
@@ -9512,13 +9832,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutConversationsInput
-    trip?: TripCreateNestedOneWithoutConversationInput
+    trip: TripCreateNestedOneWithoutConversationInput
   }
 
   export type ConversationUncheckedCreateWithoutMessagesInput = {
     id?: string
     userId: string
-    tripId?: string | null
+    tripId: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9544,13 +9864,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutConversationsNestedInput
-    trip?: TripUpdateOneWithoutConversationNestedInput
+    trip?: TripUpdateOneRequiredWithoutConversationNestedInput
   }
 
   export type ConversationUncheckedUpdateWithoutMessagesInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
+    tripId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9563,6 +9883,10 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     budget?: number | null
+    budgetTier?: $Enums.BudgetTier | null
+    travelers?: number | null
+    groupType?: $Enums.GroupType | null
+    interests?: TripCreateinterestsInput | string[]
     status?: $Enums.TripStatus
     itineraryJson: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -9579,6 +9903,10 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     budget?: number | null
+    budgetTier?: $Enums.BudgetTier | null
+    travelers?: number | null
+    groupType?: $Enums.GroupType | null
+    interests?: TripCreateinterestsInput | string[]
     status?: $Enums.TripStatus
     itineraryJson: JsonNullValueInput | InputJsonValue
     userId: string
@@ -9611,6 +9939,10 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    budgetTier?: NullableEnumBudgetTierFieldUpdateOperationsInput | $Enums.BudgetTier | null
+    travelers?: NullableIntFieldUpdateOperationsInput | number | null
+    groupType?: NullableEnumGroupTypeFieldUpdateOperationsInput | $Enums.GroupType | null
+    interests?: TripUpdateinterestsInput | string[]
     status?: EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
     itineraryJson?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9627,6 +9959,10 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    budgetTier?: NullableEnumBudgetTierFieldUpdateOperationsInput | $Enums.BudgetTier | null
+    travelers?: NullableIntFieldUpdateOperationsInput | number | null
+    groupType?: NullableEnumGroupTypeFieldUpdateOperationsInput | $Enums.GroupType | null
+    interests?: TripUpdateinterestsInput | string[]
     status?: EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
     itineraryJson?: JsonNullValueInput | InputJsonValue
     userId?: StringFieldUpdateOperationsInput | string
@@ -9643,6 +9979,10 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     budget?: number | null
+    budgetTier?: $Enums.BudgetTier | null
+    travelers?: number | null
+    groupType?: $Enums.GroupType | null
+    interests?: TripCreateinterestsInput | string[]
     status?: $Enums.TripStatus
     itineraryJson: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -9651,7 +9991,7 @@ export namespace Prisma {
 
   export type ConversationCreateManyUserInput = {
     id?: string
-    tripId?: string | null
+    tripId: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9664,6 +10004,10 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    budgetTier?: NullableEnumBudgetTierFieldUpdateOperationsInput | $Enums.BudgetTier | null
+    travelers?: NullableIntFieldUpdateOperationsInput | number | null
+    groupType?: NullableEnumGroupTypeFieldUpdateOperationsInput | $Enums.GroupType | null
+    interests?: TripUpdateinterestsInput | string[]
     status?: EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
     itineraryJson?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9680,6 +10024,10 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    budgetTier?: NullableEnumBudgetTierFieldUpdateOperationsInput | $Enums.BudgetTier | null
+    travelers?: NullableIntFieldUpdateOperationsInput | number | null
+    groupType?: NullableEnumGroupTypeFieldUpdateOperationsInput | $Enums.GroupType | null
+    interests?: TripUpdateinterestsInput | string[]
     status?: EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
     itineraryJson?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9696,6 +10044,10 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     budget?: NullableFloatFieldUpdateOperationsInput | number | null
+    budgetTier?: NullableEnumBudgetTierFieldUpdateOperationsInput | $Enums.BudgetTier | null
+    travelers?: NullableIntFieldUpdateOperationsInput | number | null
+    groupType?: NullableEnumGroupTypeFieldUpdateOperationsInput | $Enums.GroupType | null
+    interests?: TripUpdateinterestsInput | string[]
     status?: EnumTripStatusFieldUpdateOperationsInput | $Enums.TripStatus
     itineraryJson?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9706,13 +10058,13 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    trip?: TripUpdateOneWithoutConversationNestedInput
+    trip?: TripUpdateOneRequiredWithoutConversationNestedInput
     messages?: MessageUpdateManyWithoutConversationNestedInput
   }
 
   export type ConversationUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
+    tripId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     messages?: MessageUncheckedUpdateManyWithoutConversationNestedInput
@@ -9720,7 +10072,7 @@ export namespace Prisma {
 
   export type ConversationUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tripId?: NullableStringFieldUpdateOperationsInput | string | null
+    tripId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
