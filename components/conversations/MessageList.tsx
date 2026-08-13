@@ -9,7 +9,7 @@ const MessageList = ({ messages, tripState, onUISubmit }: MessageListProps) => {
       {messages.map((message) => (
         <MessageBubble
           key={message.id}
-          {...message}
+          message={message}
           tripState={tripState}
           onUISubmit={onUISubmit}
         />

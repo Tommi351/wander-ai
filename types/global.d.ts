@@ -1,6 +1,7 @@
 import { TripStatus } from "@/lib/generated/prisma";
-import { BudgetTier } from "@prisma/client";
+import { BudgetTier } from "@/lib/generated/prisma";
 import type { AITripPlanningResponse } from "@/lib/validations";
+import type { PLANNER_UI_TYPES } from "`@/lib/validations`";
 
 // 👤 USER & PROFILE ENTITIES
 import { UserPreferences } from "@/lib/validations"; // 🔥 Import the Zod-inferred one instead!
@@ -72,18 +73,23 @@ export interface TripListProps {
 }
 
 // 💬 CHAT ENTITIES
+export interface PlannerMessageMetadata {
+  ui?: {
+    type: PlannerUIType;
+  };
+}
+
 export interface ConversationMessage {
   id: string;
   conversationId: string;
   role: "USER" | "ASSISTANT" | "SYSTEM" | "DEVELOPER";
   content: string;
   createdAt: Date;
-  ui?: {
-    type: PlannerUIType;
-  };
+  metadata?: PlannerMessageMetadata | null;
 }
 
-export interface MessageBubbleProps extends ConversationMessage {
+export interface MessageBubbleProps {
+  message: ConversationMessage;
   onUISubmit: (value: PlannerUIEvent) => void;
   tripState: PlannerSubmission;
 }
@@ -245,15 +251,7 @@ export type PlannerUIEvent =
       value: PlannerSubmission;
     };
 
-export type PlannerUIType =
-  | "origin"
-  | "destination"
-  | "groupSize"
-  | "budget"
-  | "duration"
-  | "interests"
-  | "travelPreferences"
-  | "final";
+export type PlannerUIType = (typeof PLANNER_UI_TYPES)[number];
 
 export type PlannerUIRendererProps = {
   type: PlannerUIType;

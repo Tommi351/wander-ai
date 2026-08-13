@@ -1,4 +1,5 @@
 import ChatBox from "@/components/conversations/ChatBox";
+import { toConversationMessage } from "@/lib/mappers/message.mapper";
 import { getConversation } from "@/lib/queries/conversation.queries";
 import { notFound } from "next/navigation";
 
@@ -24,7 +25,7 @@ const ConversationDetails = async ({ params }: Props) => {
         {" "}
         <ChatBox
           conversationId={conversation.id}
-          initialMessages={conversation.messages}
+          initialMessages={conversation.messages.map(toConversationMessage)}
           tripId={conversation.tripId}
         />{" "}
       </div>{" "}

@@ -1,5 +1,4 @@
 // lib/actions/generate.action.ts
-// lib/actions/generate.action.ts
 "use server";
 
 import { prisma } from "../db";
@@ -21,11 +20,7 @@ export const startItineraryWithFullSnapshotAction = async (
     // 1. Group the final synchronization into a single atomic transaction
     await prisma.$transaction(async (tx) => {
       // Step A: Force update the main Trip row fields with the absolute final snapshot data
-      await updateTripFromPlannerResponse(
-        prisma,
-        tripId,
-        finalSnapshot.tripData,
-      );
+      await updateTripFromPlannerResponse(tx, tripId, finalSnapshot.tripData);
 
       // Step B: Force sync the final travel preferences JSON data to the User profile row
       if (finalSnapshot.travelPreferences) {

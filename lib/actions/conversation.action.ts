@@ -25,6 +25,8 @@ export async function createConversation() {
       };
     });
 
+    revalidatePath("/conversations");
+
     return { success: true, data: result };
   } catch (err) {
     console.error("Critical: Failed to create conversation:", err);
@@ -53,29 +55,15 @@ export const deleteConversation = async (
         throw new Error("Conversation not found");
       }
 
-      // 2. Trip? Yes -> Delete Trip (and cascade versions)
-      if (conversation.tripId) {
-        // If your schema doesn't have onDelete: Cascade, keep this deleteMany line.
-        // Otherwise, you can completely remove this deleteMany block.
-        await tx.tripVersion.deleteMany({
-          where: {
-            tripId: conversation.tripId, // Use the verified ID from the DB
-          },
-        });
-
-        // Delete the parent Trip safely
-        await tx.trip.delete({
-          where: {
-            id: conversation.tripId,
-            userId: user.id,
-          },
-        });
-      }
-
-      // 3. Trip? No (or after Trip is deleted) -> Delete Conversation
-      await tx.conversation.delete({
+      // Delete the Trip safely
+      // Database cascades remove:
+      // - Conversation
+      // - Messages
+      // - TripVersions
+      await tx.trip.delete({
         where: {
-          id: conversation.id,
+          id: conversation.tripId,
+          userId: user.id,
         },
       });
     });

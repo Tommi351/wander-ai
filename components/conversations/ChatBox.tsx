@@ -53,6 +53,7 @@ const ChatBox = ({
       role: "USER",
       content,
       createdAt: new Date(),
+      metadata: null,
     };
 
     // 2. Add optimistic message immediately
@@ -113,7 +114,8 @@ const ChatBox = ({
 
     let deltaPayload:
       | Partial<AITripPlanningResponse["updatedTripData"]>
-      | UserPreferences = {};
+      | UserPreferences
+      | null = null;
     let textRepresentation = "";
     let isPreferenceTrack = false; // Flag to separate the two tracks at the bottom
 
@@ -256,7 +258,7 @@ const ChatBox = ({
     }
 
     // 🔥 To Fix the State Lifecycle Lock problem between UI Components and AI Conversation: Asynchronously synchronize the tracks/lanes without state-locking your engine!
-    if (deltaPayload) {
+    if (deltaPayload && Object.keys(deltaPayload).length > 0) {
       // 1. Instead of using startPlanning, run as a standard async operation to control each step sequence
       (async () => {
         // 🔥 Fire Asynchronous System Execution Pipeline where AI can fire trip or preference tracks
@@ -285,11 +287,6 @@ const ChatBox = ({
               "Your choice was updated locally, but failed to sync to the server.",
             );
             return;
-          }
-          if (!res.success) {
-            setError(
-              "Your choice was updated locally, but failed to sync to the server.",
-            );
           }
 
           // 2. Clear any residual errors from previous errors

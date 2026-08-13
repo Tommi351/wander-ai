@@ -26,7 +26,7 @@ export const plannerAction = async (
       };
     }
 
-    savedUserMessage = saved.data;
+    savedUserMessage = saved.data.message;
 
     // 2. Fetch context for the AI (Fast DB call)
     const userConversations = await getConversation(conversationId);
@@ -67,6 +67,11 @@ export const plannerAction = async (
           conversationId,
           role: "ASSISTANT",
           content: plannerResponse.message,
+          metadata: {
+            ui: {
+              type: plannerResponse.ui.type,
+            },
+          },
         },
         select: {
           id: true,
@@ -74,6 +79,7 @@ export const plannerAction = async (
           role: true,
           content: true,
           createdAt: true,
+          metadata: true,
         },
       });
 
@@ -90,11 +96,6 @@ export const plannerAction = async (
       return message;
     });
 
-    const assistantMessageWithUI = {
-      ...assistantMessage,
-      ui: plannerResponse.ui,
-    };
-
     if (plannerResponse.isComplete) {
       // Move to Phase 4B: Itinerary Generation
     }
@@ -103,7 +104,7 @@ export const plannerAction = async (
       success: true,
       ...plannerResponse,
       savedUserMessage,
-      assistantMessage: assistantMessageWithUI,
+      assistantMessage,
     };
   } catch (err) {
     console.error("Unable to plan trip:", err);

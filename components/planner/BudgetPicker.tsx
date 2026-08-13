@@ -35,6 +35,7 @@ function BudgetPicker({ data, onSubmit }: BudgetPickerProps) {
         <button
           key={tier.value}
           type="button"
+          aria-pressed={selectedBudget === tier.value}
           onClick={() =>
             onSubmit({
               type: "budget",

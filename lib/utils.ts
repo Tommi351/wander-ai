@@ -19,6 +19,12 @@ export function differenceInDays(
   return Math.ceil(milliseconds / (1000 * 60 * 60 * 24));
 }
 
+export function addDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
 export const toTripDTO = (trip: Trip): TripDTO => {
   return {
     id: trip.id,

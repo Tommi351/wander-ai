@@ -97,7 +97,7 @@ export type CreateMessageFormInput = z.input<typeof CreateMessageSchema>;
 export type CreateMessageData = z.infer<typeof CreateMessageSchema>;
 
 export const UserPreferencesSchema = z.object({
-  pace: z.enum(["relaxed", "moderate", "fast-paced"]),
+  pace: z.enum(["relaxed", "moderate", "fast-paced"]).nullable(),
 
   travelStyle: z
     .enum(["backpacking", "balanced", "luxury", "family", "business"])
@@ -120,22 +120,69 @@ export const UserPreferencesSchema = z.object({
   avoidCategories: z.array(z.string().trim().min(1)).nullable(),
 });
 
+// What the AI must receive
 export type UserPreferences = z.infer<typeof UserPreferencesSchema>;
+
+export const StoredUserPreferencesSchema = z.object({
+  pace: z.enum(["relaxed", "moderate", "fast-paced"]).nullable().optional(),
+
+  travelStyle: z
+    .enum(["backpacking", "balanced", "luxury", "family", "business"])
+    .nullable()
+    .optional(),
+
+  priority: z
+    .array(z.enum(["food", "culture", "nature", "nightlife", "adventure"]))
+    .nullable()
+    .optional(),
+
+  dietaryRestrictions: z.array(z.string().trim().min(1)).nullable().optional(),
+
+  spendingFlexibility: z
+    .enum(["strict", "moderate", "flexible"])
+    .nullable()
+    .optional(),
+
+  planningStyle: z
+    .enum(["detailed", "minimal", "surprise-me"])
+    .nullable()
+    .optional(),
+
+  weatherPreference: z
+    .enum(["warm", "cold", "mixed", "noPreference"])
+    .nullable()
+    .optional(),
+
+  avoidCategories: z.array(z.string().trim().min(1)).nullable().optional(),
+});
+
+// What the user actually selected
+export type StoredUserPreferences = z.infer<typeof StoredUserPreferencesSchema>;
+
+export const PLANNER_UI_TYPES = [
+  "origin",
+  "destination",
+  "groupSize",
+  "budget",
+  "duration",
+  "interests",
+  "travelPreferences",
+  "final",
+] as const;
+
+export const PlannerMessageMetadataSchema = z.object({
+  ui: z
+    .object({
+      type: z.enum(PLANNER_UI_TYPES),
+    })
+    .optional(),
+});
 
 export const AITripPlanningResponseSchema = z.object({
   message: z.string().trim(),
 
   ui: z.object({
-    type: z.enum([
-      "origin",
-      "destination",
-      "groupSize",
-      "budget",
-      "duration",
-      "interests",
-      "travelPreferences",
-      "final",
-    ]),
+    type: z.enum(PLANNER_UI_TYPES),
   }),
 
   updatedTripData: z.object({

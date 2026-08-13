@@ -1,7 +1,7 @@
 "use server";
 
 import type OpenAI from "openai";
-import { openAIClient } from "./openai";
+import { getOpenAIClient } from "./openai";
 import { prisma } from "../db";
 
 import { PlannerServiceInput } from "@/types/global";
@@ -14,6 +14,7 @@ import { AITripPlanningResponse } from "../validations";
 import { BudgetTier, Prisma } from "../generated/prisma";
 
 import { z } from "zod";
+import { addDays } from "../utils";
 
 const plannerJsonSchema = z.toJSONSchema(AITripPlanningResponseSchema);
 
@@ -68,7 +69,7 @@ Do not overwrite trip-specific information.`,
     ...conversationHistory,
   ];
 
-  const response = await openAIClient.chat.completions.create({
+  const response = await getOpenAIClient().chat.completions.create({
     model: "gpt-4o-mini",
     messages: messages,
     temperature: 0.2,
@@ -104,24 +105,34 @@ export async function updateTripFromPlannerResponse(
   tripId: string,
   data: Partial<AITripPlanningResponse["updatedTripData"]>,
 ) {
+  const existingTrip = await db.trip.findUnique({
+    where: { id: tripId },
+    select: {
+      startDate: true,
+    },
+  });
+
+  const updateData: Prisma.TripUpdateInput = {
+    origin: data.origin ?? undefined,
+    destination: data.destination ?? undefined,
+    travelers: data.travelers ?? undefined,
+    budgetTier: data.budgetTier ? BUDGET_TIER_MAP[data.budgetTier] : undefined,
+    interests:
+      data.interests && data.interests.length > 0 ? data.interests : undefined,
+  };
+
+  if (data.duration !== undefined && existingTrip?.startDate) {
+    updateData.endDate = addDays(
+      existingTrip.startDate,
+      data.duration as number,
+    );
+  }
+
   return db.trip.update({
     where: {
       id: tripId,
     },
-
-    data: {
-      origin: data.origin ?? undefined,
-      destination: data.destination ?? undefined,
-      duration: data.duration ?? undefined,
-      travelers: data.travelers ?? undefined,
-      budgetTier: data.budgetTier
-        ? BUDGET_TIER_MAP[data.budgetTier]
-        : undefined,
-      interests:
-        data.interests && data.interests.length > 0
-          ? data.interests
-          : undefined,
-    },
+    data: updateData,
   });
 }
 

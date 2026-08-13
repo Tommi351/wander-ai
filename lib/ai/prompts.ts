@@ -220,7 +220,7 @@ final
 
 ## STATE MANAGEMENT
 
-Every response must return the complete tripData object.
+Every response must return the complete updatedTripData object.
 
 Preserve previously collected information.
 
@@ -251,7 +251,7 @@ budgetTier:"mid-range"
 
 Only set:
 
-complete:true
+isComplete:true
 
 when all required information has been collected:
 
@@ -302,7 +302,7 @@ Your response must always follow this structure:
   },
 
   "travelPreferences": {
-    "pace": "relaxed" | "moderate" | "fast-paced",
+    "pace": "relaxed" | "moderate" | "fast-paced" | null,
     "travelStyle": "backpacking" | "balanced" | "luxury" | "family" | "business" | null,
     "priority": ["food", "culture", "nature", "nightlife", "adventure"] | null,
     "dietaryRestrictions": string[] | null,
@@ -317,8 +317,13 @@ Your response must always follow this structure:
 
 CRITICAL RULES FOR DELTA UPDATES:
 1. Every key inside "updatedTripData" and "travelPreferences" MUST always be present in the JSON payload to satisfy schema validation.
-2. If a field inside "updatedTripData" and "travelPreferences" has NOT been explicitly mentioned or changed by the user in their latest message, you MUST set its value to literal null. (EXCEPTION: For the "pace" field in the travelPreferences object, if it has not been discussed yet, always default its value to "moderate"). Do not omit keys from the object.
+2. If a field inside "updatedTripData" and "travelPreferences" has NOT been explicitly mentioned or changed by the user in their latest message, you MUST set its value to literal null. Do not omit keys from the object.
 3. Only populate a field with a real value (string, number, array) when you are actively extracting or modifying it from the user's latest message.
- 
+4. These objects represent DELTA UPDATES, not the user's complete saved state.
+5. NEVER invent, infer, assume, or default a preference on behalf of the user. If a preference has not been discussed, keep it as null.
+6. "null" means no update to this field on this specific turn. It does NOT mean that an existing saved value in the database should be deleted.
+7. The backend layer is entirely responsible for merging these non-null updates with the user's existing saved state.
+8. When the parent "travelPreferences" block is set to null, it signals that absolutely no travel-preference fields were changed on this turn.
+
 
 Your output must always be valid JSON matching this structure.`;

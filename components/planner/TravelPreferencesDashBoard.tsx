@@ -254,6 +254,7 @@ export function TravelPreferencesDashboard({
                 <button
                   key={option.id}
                   type="button"
+                  aria-pressed={selected}
                   onClick={() => togglePriority(option.id)}
                   className={`px-3 py-2 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
                     selected
@@ -332,6 +333,7 @@ export function TravelPreferencesDashboard({
               <button
                 key={value}
                 type="button"
+                aria-pressed={weatherPreference === value}
                 onClick={() =>
                   setWeatherPreference(
                     value as NonNullable<
@@ -422,6 +424,7 @@ export function TravelPreferencesDashboard({
                 <button
                   key={option}
                   type="button"
+                  aria-pressed={selected}
                   onClick={() => toggleAvoidCategory(option)}
                   className={`px-3 py-2 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
                     selected

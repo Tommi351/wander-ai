@@ -1,16 +1,16 @@
 "use server";
 
 import { requireUser } from "@/auth";
-import { getTrips } from "@/lib/actions/trip.action";
+import { getTrips } from "@/lib/queries/trip.queries";
 import Link from "next/link";
-
-// Please connect real trips from DB instead of mock ones
-const result = await getTrips();
-
-const trips = result.success ? result.data : [];
 
 const Dashboard = async () => {
   const user = await requireUser();
+
+  // Please connect real trips from DB instead of mock ones
+  const result = await getTrips();
+
+  const trips = !result ? [] : result;
   return (
     <div className="flex flex-col gap-8 w-full">
       {/* HEADER SECTION */}

@@ -1,7 +1,17 @@
 import { Trip, TripPlanningState } from "@/types/global";
 import { differenceInDays } from "../utils";
+import { BudgetTier } from "../generated/prisma";
 
 export const toTripPlanningState = (trip: Trip | null): TripPlanningState => {
+  const PLANNER_BUDGET_TIER_MAP: Record<
+    BudgetTier,
+    "budget" | "mid-range" | "luxury"
+  > = {
+    [BudgetTier.BUDGET]: "budget",
+    [BudgetTier.MID_RANGE]: "mid-range",
+    [BudgetTier.LUXURY]: "luxury",
+  };
+
   if (!trip) {
     return {
       tripData: {
@@ -32,7 +42,9 @@ export const toTripPlanningState = (trip: Trip | null): TripPlanningState => {
           ? differenceInDays(trip.endDate, trip.startDate)
           : null,
 
-      budgetTier: trip.budgetTier,
+      budgetTier: trip.budgetTier
+        ? PLANNER_BUDGET_TIER_MAP[trip.budgetTier]
+        : null,
 
       interests: trip.interests,
     },

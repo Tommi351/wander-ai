@@ -47,6 +47,7 @@ export function InterestsChips({ data, onSubmit }: InterestsChipsProps) {
             <button
               key={item.id}
               type="button"
+              aria-pressed={isSelected}
               onClick={() => toggleInterest(item.id)}
               className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border cursor-pointer select-none active:scale-95 ${
                 isSelected

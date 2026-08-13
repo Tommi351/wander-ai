@@ -4938,6 +4938,7 @@ export namespace Prisma {
     conversationId: number
     role: number
     content: number
+    metadata: number
     createdAt: number
     _all: number
   }
@@ -4964,6 +4965,7 @@ export namespace Prisma {
     conversationId?: true
     role?: true
     content?: true
+    metadata?: true
     createdAt?: true
     _all?: true
   }
@@ -5045,6 +5047,7 @@ export namespace Prisma {
     conversationId: string
     role: $Enums.MessageRole
     content: string
+    metadata: JsonValue | null
     createdAt: Date
     _count: MessageCountAggregateOutputType | null
     _min: MessageMinAggregateOutputType | null
@@ -5070,6 +5073,7 @@ export namespace Prisma {
     conversationId?: boolean
     role?: boolean
     content?: boolean
+    metadata?: boolean
     createdAt?: boolean
     conversation?: boolean | ConversationDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["message"]>
@@ -5079,6 +5083,7 @@ export namespace Prisma {
     conversationId?: boolean
     role?: boolean
     content?: boolean
+    metadata?: boolean
     createdAt?: boolean
     conversation?: boolean | ConversationDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["message"]>
@@ -5088,6 +5093,7 @@ export namespace Prisma {
     conversationId?: boolean
     role?: boolean
     content?: boolean
+    metadata?: boolean
     createdAt?: boolean
     conversation?: boolean | ConversationDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["message"]>
@@ -5097,10 +5103,11 @@ export namespace Prisma {
     conversationId?: boolean
     role?: boolean
     content?: boolean
+    metadata?: boolean
     createdAt?: boolean
   }
 
-  export type MessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "conversationId" | "role" | "content" | "createdAt", ExtArgs["result"]["message"]>
+  export type MessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "conversationId" | "role" | "content" | "metadata" | "createdAt", ExtArgs["result"]["message"]>
   export type MessageInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     conversation?: boolean | ConversationDefaultArgs<ExtArgs>
   }
@@ -5121,6 +5128,7 @@ export namespace Prisma {
       conversationId: string
       role: $Enums.MessageRole
       content: string
+      metadata: Prisma.JsonValue | null
       createdAt: Date
     }, ExtArgs["result"]["message"]>
     composites: {}
@@ -5550,6 +5558,7 @@ export namespace Prisma {
     readonly conversationId: FieldRef<"Message", 'String'>
     readonly role: FieldRef<"Message", 'MessageRole'>
     readonly content: FieldRef<"Message", 'String'>
+    readonly metadata: FieldRef<"Message", 'Json'>
     readonly createdAt: FieldRef<"Message", 'DateTime'>
   }
     
@@ -7154,6 +7163,7 @@ export namespace Prisma {
     conversationId: 'conversationId',
     role: 'role',
     content: 'content',
+    metadata: 'metadata',
     createdAt: 'createdAt'
   };
 
@@ -7186,6 +7196,14 @@ export namespace Prisma {
   };
 
   export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
   export const QueryMode: {
@@ -7602,6 +7620,7 @@ export namespace Prisma {
     conversationId?: StringFilter<"Message"> | string
     role?: EnumMessageRoleFilter<"Message"> | $Enums.MessageRole
     content?: StringFilter<"Message"> | string
+    metadata?: JsonNullableFilter<"Message">
     createdAt?: DateTimeFilter<"Message"> | Date | string
     conversation?: XOR<ConversationScalarRelationFilter, ConversationWhereInput>
   }
@@ -7611,6 +7630,7 @@ export namespace Prisma {
     conversationId?: SortOrder
     role?: SortOrder
     content?: SortOrder
+    metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     conversation?: ConversationOrderByWithRelationInput
   }
@@ -7623,6 +7643,7 @@ export namespace Prisma {
     conversationId?: StringFilter<"Message"> | string
     role?: EnumMessageRoleFilter<"Message"> | $Enums.MessageRole
     content?: StringFilter<"Message"> | string
+    metadata?: JsonNullableFilter<"Message">
     createdAt?: DateTimeFilter<"Message"> | Date | string
     conversation?: XOR<ConversationScalarRelationFilter, ConversationWhereInput>
   }, "id">
@@ -7632,6 +7653,7 @@ export namespace Prisma {
     conversationId?: SortOrder
     role?: SortOrder
     content?: SortOrder
+    metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: MessageCountOrderByAggregateInput
     _max?: MessageMaxOrderByAggregateInput
@@ -7646,6 +7668,7 @@ export namespace Prisma {
     conversationId?: StringWithAggregatesFilter<"Message"> | string
     role?: EnumMessageRoleWithAggregatesFilter<"Message"> | $Enums.MessageRole
     content?: StringWithAggregatesFilter<"Message"> | string
+    metadata?: JsonNullableWithAggregatesFilter<"Message">
     createdAt?: DateTimeWithAggregatesFilter<"Message"> | Date | string
   }
 
@@ -7997,6 +8020,7 @@ export namespace Prisma {
     id?: string
     role?: $Enums.MessageRole
     content: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     conversation: ConversationCreateNestedOneWithoutMessagesInput
   }
@@ -8006,6 +8030,7 @@ export namespace Prisma {
     conversationId: string
     role?: $Enums.MessageRole
     content: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -8013,6 +8038,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     conversation?: ConversationUpdateOneRequiredWithoutMessagesNestedInput
   }
@@ -8022,6 +8048,7 @@ export namespace Prisma {
     conversationId?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -8030,6 +8057,7 @@ export namespace Prisma {
     conversationId: string
     role?: $Enums.MessageRole
     content: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -8037,6 +8065,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -8045,6 +8074,7 @@ export namespace Prisma {
     conversationId?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -8576,6 +8606,29 @@ export namespace Prisma {
     notIn?: $Enums.MessageRole[] | ListEnumMessageRoleFieldRefInput<$PrismaModel>
     not?: NestedEnumMessageRoleFilter<$PrismaModel> | $Enums.MessageRole
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type ConversationScalarRelationFilter = {
     is?: ConversationWhereInput
@@ -8587,6 +8640,7 @@ export namespace Prisma {
     conversationId?: SortOrder
     role?: SortOrder
     content?: SortOrder
+    metadata?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -8614,6 +8668,32 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumMessageRoleFilter<$PrismaModel>
     _max?: NestedEnumMessageRoleFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -9286,6 +9366,29 @@ export namespace Prisma {
     _min?: NestedEnumMessageRoleFilter<$PrismaModel>
     _max?: NestedEnumMessageRoleFilter<$PrismaModel>
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
@@ -9531,6 +9634,7 @@ export namespace Prisma {
     id?: string
     role?: $Enums.MessageRole
     content: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -9538,6 +9642,7 @@ export namespace Prisma {
     id?: string
     role?: $Enums.MessageRole
     content: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -9659,6 +9764,7 @@ export namespace Prisma {
     conversationId?: StringFilter<"Message"> | string
     role?: EnumMessageRoleFilter<"Message"> | $Enums.MessageRole
     content?: StringFilter<"Message"> | string
+    metadata?: JsonNullableFilter<"Message">
     createdAt?: DateTimeFilter<"Message"> | Date | string
   }
 
@@ -10081,6 +10187,7 @@ export namespace Prisma {
     id?: string
     role?: $Enums.MessageRole
     content: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -10088,6 +10195,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -10095,6 +10203,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -10102,6 +10211,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

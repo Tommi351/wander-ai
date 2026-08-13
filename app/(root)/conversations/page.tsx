@@ -17,21 +17,17 @@ const ConversationsPage = async () => {
 
       <div className="mt-5">
         {conversations.map((conversation) => (
-          <Link
-            key={conversation.id}
-            href={`/conversations/${conversation.id}`}
-          >
-            <div className="border rounded-xl p-5 mb-3">
+          <div key={conversation.id} className="border rounded-xl p-5 mb-3">
+            <Link href={`/conversations/${conversation.id}`}>
               <p>Conversation {conversation.id}</p>
-
               <p>{conversation.trip.title}</p>
-            </div>
+            </Link>
 
             <DeleteConversationButton
               conversationId={conversation.id}
-              tripId={conversation.tripId ?? ""}
+              tripId={conversation.tripId}
             />
-          </Link>
+          </div>
         ))}
       </div>
     </div>
