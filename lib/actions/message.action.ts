@@ -30,22 +30,41 @@ export const createMessage = async (
   try {
     const data = CreateMessageSchema.parse(input);
 
-    const message = await prisma.message.create({
-      data: {
-        conversationId,
-        role: "USER",
-        content: data.content,
-      },
+    const conversationTransaction = await prisma.$transaction(async (tx) => {
+      const message = await tx.message.create({
+        data: {
+          conversationId,
+          role: "USER",
+          content: data.content,
+        },
 
-      select: {
-        id: true,
-        role: true,
-        content: true,
-        createdAt: true,
-      },
+        select: {
+          id: true,
+          conversationId: true,
+          role: true,
+          content: true,
+          createdAt: true,
+          metadata: true,
+        },
+      });
+
+      // Explicitly update the parent Conversation to trigger updatedAt
+      const converation = await tx.conversation.update({
+        where: {
+          id: conversationId,
+        },
+        data: {
+          updatedAt: new Date(),
+        },
+      });
+
+      return {
+        message,
+        converation,
+      };
     });
 
-    return { success: true, data: message };
+    return { success: true, data: conversationTransaction };
   } catch (err) {
     console.error("Critical: Failed to create message:", err);
     return { success: false, error: "Failed to create user messages" };

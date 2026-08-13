@@ -22,6 +22,22 @@ enum TripStatus {
 enum MessageRole {
   USER
   ASSISTANT
+  SYSTEM
+  DEVELOPER
+}
+
+enum BudgetTier {
+  BUDGET
+  MID_RANGE
+  LUXURY
+}
+
+enum GroupType {
+  SOLO
+  COUPLE
+  FAMILY
+  FRIENDS
+  BUSINESS
 }
 
 model User {
@@ -40,23 +56,29 @@ model User {
 model Conversation {
   id        String   @id @default(uuid())
   userId    String
-  tripId    String?  @unique // 👈 Nullable while chatting, becomes Unique once Trip is built
+  tripId    String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  trip     Trip?     @relation(fields: [tripId], references: [id], onDelete: SetNull) // 👈 3. Links to optional Trip
+  trip     Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade) // 👈 3. Links to optional Trip
   messages Message[] // 👈 One-to-many link down to chat components
 }
 
 model Trip {
-  id            String     @id @default(uuid())
-  title         String
-  destination   String
-  origin        String?
-  startDate     DateTime?
-  endDate       DateTime?
-  budget        Float?
+  id          String      @id @default(uuid())
+  title       String
+  destination String
+  origin      String?
+  startDate   DateTime?
+  endDate     DateTime?
+  budget      Float?
+  budgetTier  BudgetTier?
+
+  travelers Int?
+  groupType GroupType?
+
+  interests     String[]
   status        TripStatus @default(DRAFT)
   itineraryJson Json
   userId        String
@@ -73,6 +95,7 @@ model Message {
   conversationId String // 👈 Messages are strictly bound to Conversations now, not Trips!
   role           MessageRole @default(USER)
   content        String
+  metadata       Json?
   createdAt      DateTime    @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)

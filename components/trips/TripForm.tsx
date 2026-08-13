@@ -4,11 +4,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateTripSchema, CreateTripFormInput } from "@/lib/validations";
 import { createTrip } from "@/lib/actions/trip.action";
+import { prisma } from "../../lib/db";
 
 async function onSubmit(data: CreateTripFormInput) {
-  const result = await createTrip(data);
+  const result = await createTrip(prisma, data);
 
-  if (!result.success) {
+  if (!result) {
     // show toast later in Phase 3
     return;
   }

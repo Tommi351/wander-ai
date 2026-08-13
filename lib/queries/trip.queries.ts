@@ -2,37 +2,45 @@
 
 import { prisma } from "../db";
 import { requireUser } from "@/auth";
+import { toTripDTO } from "../utils";
+import { TripDTO } from "@/types/global";
 
-export async function getTrips() {
+export const getTrips = async (): Promise<TripDTO[]> => {
   const user = await requireUser();
 
   try {
-    return prisma.trip.findMany({
-      where: {
-        userId: user.id,
-      },
-      orderBy: {
-        updatedAt: "desc",
-      },
+    const trips = await prisma.trip.findMany({
+      where: { userId: user.id },
+      orderBy: { updatedAt: "desc" },
       select: {
         id: true,
         title: true,
         destination: true,
+        travelers: true,
+        budgetTier: true,
+        interests: true,
         origin: true,
         startDate: true,
         endDate: true,
         budget: true,
         status: true,
+        conversation: {
+          select: {
+            id: true,
+          },
+        },
         updatedAt: true,
       },
     });
-  } catch (err) {
-    console.error("Failed to get user trips", err);
-    return [];
-  }
-}
 
-export async function getTripById(tripId: string) {
+    return trips.map(toTripDTO);
+  } catch (err) {
+    console.error("Critical: Failed to fetch user trip index:", err);
+    throw new Error("Failed to fetch user trips");
+  }
+};
+
+export const getTripById = async (tripId: string) => {
   const user = await requireUser();
 
   try {
@@ -45,6 +53,9 @@ export async function getTripById(tripId: string) {
         id: true,
         title: true,
         destination: true,
+        travelers: true,
+        budgetTier: true,
+        interests: true,
         origin: true,
         startDate: true,
         endDate: true,
@@ -55,9 +66,9 @@ export async function getTripById(tripId: string) {
       },
     });
 
-    return trip;
+    return trip ? toTripDTO(trip) : null;
   } catch (err) {
     console.error(`Critical: Failed to fetch trip ID ${tripId}:`, err);
-    return [];
+    throw new Error("Failed to find user trip");
   }
-}
+};

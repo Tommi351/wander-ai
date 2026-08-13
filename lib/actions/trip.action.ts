@@ -1,6 +1,8 @@
 "use server";
 
+import { TripDTO } from "@/types/global";
 import { prisma } from "../db";
+import { Prisma } from "../generated/prisma";
 import { toTripDTO } from "../utils";
 import {
   CreateTripSchema,
@@ -10,67 +12,30 @@ import {
 } from "../validations";
 import { requireUser } from "@/auth";
 
-export const getTrips = async () => {
-  const user = await requireUser();
-
+export const createTrip = async (
+  tx: Prisma.TransactionClient,
+  userId: string,
+): Promise<TripDTO> => {
   try {
-    const trips = await prisma.trip.findMany({
-      where: { userId: user.id },
-      orderBy: { updatedAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        destination: true,
-        origin: true,
-        startDate: true,
-        endDate: true,
-        budget: true,
-        status: true,
-        updatedAt: true,
+    const trip = await tx.trip.create({
+      data: {
+        title: "New Trip",
+        destination: "",
+        interests: [],
+        itineraryJson: {},
+        status: "DRAFT",
+        userId: userId,
       },
     });
 
-    return {
-      success: true,
-      data: trips.map(toTripDTO),
-    };
+    return toTripDTO(trip);
   } catch (err) {
-    console.error("Critical: Failed to fetch user trip index:", err);
-    return { success: false, error: "Failed to fetch user trips" };
+    console.error("Can't create trip", err);
+    throw new Error("Failed to create user trip");
   }
 };
 
-export const getTripById = async (tripId: string) => {
-  const user = await requireUser();
-
-  try {
-    const trip = await prisma.trip.findFirst({
-      where: {
-        id: tripId,
-        userId: user.id,
-      },
-      select: {
-        id: true,
-        title: true,
-        destination: true,
-        origin: true,
-        startDate: true,
-        endDate: true,
-        budget: true,
-        status: true,
-        itineraryJson: true, // Crucial: Includes data payload for your frontend planner view
-        updatedAt: true,
-      },
-    });
-
-    return { success: true, data: trip ? toTripDTO(trip) : null };
-  } catch (err) {
-    console.error(`Critical: Failed to fetch trip ID ${tripId}:`, err);
-    return { success: false, error: "Failed to find user trip" };
-  }
-};
-
-export const createTrip = async (input: CreateTripFormInput) => {
+export const createPublicTrip = async (input: CreateTripFormInput) => {
   const user = await requireUser();
 
   const data = CreateTripSchema.parse(input);
@@ -101,7 +66,7 @@ export const createTrip = async (input: CreateTripFormInput) => {
   }
 };
 
-export const updateTrip = async (
+export const updatePublicTrip = async (
   tripId: string,
   input: UpdateTripFormInput,
 ) => {

@@ -1,33 +1,16 @@
+"use server";
+
 import { requireUser } from "@/auth";
+import { getTrips } from "@/lib/queries/trip.queries";
 import Link from "next/link";
-
-type Trip = {
-  id: string;
-  title: string;
-  destination: string;
-  status: "DRAFT" | "ACTIVE" | "COMPLETED";
-  updatedAt: string;
-};
-
-const mockTrips: Trip[] = [
-  {
-    id: "1",
-    title: "Paris Adventure",
-    destination: "Paris, France",
-    status: "DRAFT",
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    title: "Tokyo Explorer",
-    destination: "Tokyo, Japan",
-    status: "ACTIVE",
-    updatedAt: new Date().toISOString(),
-  },
-];
 
 const Dashboard = async () => {
   const user = await requireUser();
+
+  // Please connect real trips from DB instead of mock ones
+  const result = await getTrips();
+
+  const trips = !result ? [] : result;
   return (
     <div className="flex flex-col gap-8 w-full">
       {/* HEADER SECTION */}
@@ -55,12 +38,12 @@ const Dashboard = async () => {
 
       {/* TRIP GRID */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {mockTrips.length === 0 ? (
+        {trips?.length === 0 ? (
           <div className="col-span-full text-center text-gray-500 border rounded-lg p-10">
             No trips yet. Create your first journey ✈️
           </div>
         ) : (
-          mockTrips.map((trip) => (
+          trips?.map((trip) => (
             <div
               key={trip.id}
               className="border rounded-xl p-4 hover:shadow-md transition bg-white"
