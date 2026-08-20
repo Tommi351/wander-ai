@@ -5,15 +5,15 @@ import { notFound } from "next/navigation";
 
 type Props = {
   params: Promise<{
-    id: string;
+    tripId: string;
   }>;
 };
 
-export const TripDetails = async ({ params }: Props) => {
-  const { id } = await params;
+const TripDetails = async ({ params }: Props) => {
+  const { tripId } = await params;
 
   // 1. Fetch the completely synchronized, Zod-validated Trip DTO from your query layer
-  const trip = await getTripById(id);
+  const trip = await getTripById(tripId);
 
   if (!trip) {
     return notFound();

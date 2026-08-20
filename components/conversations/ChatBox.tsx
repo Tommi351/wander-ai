@@ -5,6 +5,7 @@ import ChatInput from "./ChatInput";
 import MessageList from "./MessageList";
 import {
   ConversationMessage,
+  GeneratorSubmission,
   PlannerSubmission,
   PlannerUIEvent,
 } from "@/types/global";
@@ -20,6 +21,7 @@ import {
 } from "@/lib/validations";
 import { startItineraryWithFullSnapshotAction } from "@/lib/actions/generate.action";
 import { useRouter } from "next/navigation";
+import TravelLoader from "../trips/TravelLoader";
 
 const ChatBox = ({
   initialMessages,
@@ -43,6 +45,7 @@ const ChatBox = ({
   });
 
   const [isPlanning, startPlanning] = useTransition();
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -117,39 +120,39 @@ const ChatBox = ({
   const handleSend = sendToPlanner;
 
   const handleFinalSubmission = async (
-    submissionPayload: PlannerSubmission,
+    submissionPayload: GeneratorSubmission,
   ) => {
     setError(null);
+    setIsGenerating(true);
 
-    (async () => {
-      try {
-        const res = await startItineraryWithFullSnapshotAction(
-          tripId,
-          submissionPayload,
-        );
+    try {
+      const res = await startItineraryWithFullSnapshotAction(
+        tripId,
+        submissionPayload,
+      );
 
-        if (!res.success) {
-          setError(
-            res.error || "Failed to create your structured travel layout.",
-          );
-        }
-
-        console.log("🚀 Phase 4B Engine Core Successfully Executed!", res.data);
-
-        // 3. TRIGGER VIEW PORT STATE HANDLER TRANSITION (Phase 4C Entry Portal!)
-        if (onGenerationComplete && res.data) {
-          onGenerationComplete(res.data);
-        }
-
-        router.push(`/trips/${tripId}`);
-        router.refresh(); // Hard flushes the client-side cache for the current route
-      } catch (err) {
-        console.error("Generation pipeline failure", err);
+      if (!res.success) {
         setError(
-          "A fatal transmission error occurred while launching the itinerary builder.",
+          res.error || "Failed to create your structured travel layout.",
         );
+        return;
       }
-    })();
+
+      // 3. TRIGGER VIEW PORT TRANSITION (Phase 4C Entry Portal!)
+      if (onGenerationComplete && res.data) {
+        onGenerationComplete(res.data);
+      }
+
+      router.push(`/trips/${tripId}`);
+      router.refresh(); // Hard flushes the client-side cache for the current route
+    } catch (err) {
+      console.error("Generation pipeline failure", err);
+      setError(
+        "A fatal transmission error occurred while launching the itinerary builder.",
+      );
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleUISubmit = (event: PlannerUIEvent) => {
@@ -263,7 +266,7 @@ const ChatBox = ({
       case "final":
         /* * The FinalSummaryTicket gives us the complete * PlannerSubmission. * * This is the gateway into Phase 4B. * * DO NOT generate the itinerary here yet unless * your Phase 4B action already exists. */
         setTripState(event.value);
-        handleFinalSubmission(event.value);
+        handleFinalSubmission(event.value as GeneratorSubmission);
 
         // 3. PROGRESSION ADVANCEMENT: At this point, your layout can show a
         // cinematic loader, or your real-time listeners will automatically load Phase 5!
@@ -322,6 +325,14 @@ const ChatBox = ({
       })();
     }
   };
+
+  if (isGenerating) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-50/80 backdrop-blur-xs animate-fade-in w-full h-screen">
+        <TravelLoader />
+      </div>
+    );
+  }
 
   return (
     <div className="h-[90vh] flex flex-col">

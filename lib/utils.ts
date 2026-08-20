@@ -1,8 +1,8 @@
-import { TravelItinerary, TripDTO } from "@/types/global";
+import { TripDTO } from "@/types/global";
 import { BudgetTier, Conversation, type Trip } from "./generated/prisma";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { CanonicalItinerarySchema } from "./validations";
+import { CanonicalItinerarySchema, TravelItinerary } from "./validations";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -77,7 +77,7 @@ export const toTripDTO = (trip: PrismaTripWithConversation): TripDTO => {
         ? trip.endDate.toISOString()
         : trip.endDate || null,
     travelers: trip.travelers,
-    budget: trip.budget ? Number(trip.budget) : null,
+    budget: trip.budget === null ? null : Number(trip.budget),
     budgetTier: trip.budgetTier ? BUDGET_TIER_MAP[trip.budgetTier] : null, // Handles casing maps safely
     interests: trip.interests || [],
     status: trip.status,

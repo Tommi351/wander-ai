@@ -333,5 +333,12 @@ export const LLMItineraryGenerationSchema = z.object({
   ),
 });
 
-export type CanonicalItinerary = z.infer<typeof CanonicalItinerarySchema>;
+export type GeoLocation = z.infer<typeof GeoLocationSchema>;
+export type FlightItem = z.infer<typeof FlightItemSchema>;
+export type HotelItem = z.infer<typeof HotelItemSchema>;
+export type ActivityItem = z.infer<typeof ActivityItemSchema>;
 export type TimelineItem = z.infer<typeof TimelineItemSchema>;
+export type ItineraryDay = z.infer<typeof ItineraryDaySchema>;
+export type TravelItinerary = z.infer<typeof CanonicalItinerarySchema>;
+// This ensures TravelItinerary and CanonicalItinerary are perfectly unified!
+export type CanonicalItinerary = TravelItinerary;

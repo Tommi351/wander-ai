@@ -2,7 +2,7 @@
 "use server";
 
 import { prisma } from "../db";
-import { PlannerSubmission } from "@/types/global";
+import { GeneratorSubmission } from "@/types/global";
 import {
   updatePreferencesFromPlannerResponse,
   updateTripFromPlannerResponse,
@@ -13,7 +13,7 @@ import { requireUser } from "@/auth";
 
 export const startItineraryWithFullSnapshotAction = async (
   tripId: string,
-  finalSnapshot: PlannerSubmission,
+  finalSnapshot: GeneratorSubmission,
 ) => {
   try {
     const user = await requireUser();
@@ -43,6 +43,12 @@ export const startItineraryWithFullSnapshotAction = async (
       };
     });
 
+    const dateAnchorString = synchronizedData.finalTrip.startDate
+      ? new Date(synchronizedData.finalTrip.startDate)
+          .toISOString()
+          .split("T")[0]
+      : null;
+
     // 2. KICK OFF PHASE 4B ITINERARY GENERATION PIPELINE
     const validatedItinerary = await generateService({
       tripId,
@@ -57,6 +63,7 @@ export const startItineraryWithFullSnapshotAction = async (
         },
         travelPreferences: finalSnapshot.travelPreferences,
       },
+      startDate: dateAnchorString,
     });
 
     // 3. PERSIST THE BLUEPRINT ARTIFACT TO COLD STORAGE

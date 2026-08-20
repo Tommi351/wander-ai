@@ -1,5 +1,3 @@
-"use server";
-
 import type OpenAI from "openai";
 import { getOpenAIClient } from "./openai";
 import { prisma } from "../db";

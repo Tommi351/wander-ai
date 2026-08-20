@@ -1,5 +1,3 @@
-"use server";
-
 import type OpenAI from "openai";
 import { getOpenAIClient } from "./openai";
 import { GeneratorServiceInput } from "@/types/global";
@@ -16,7 +14,10 @@ const generatorJsonSchema = z.toJSONSchema(LLMItineraryGenerationSchema);
 export const generateService = async ({
   tripId,
   finalSnapShot,
-}: GeneratorServiceInput): Promise<CanonicalItinerary> => {
+  startDate,
+}: GeneratorServiceInput & {
+  startDate: string | null;
+}): Promise<CanonicalItinerary> => {
   const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
     {
       role: "system",
@@ -40,7 +41,10 @@ which trip you should make a itinerary for
 ${JSON.stringify(finalSnapShot)}
 
 Think of this final snapshot as a culmination of the user's planned trip and their travel preferences 
-for the trip.`,
+for the trip.
+🛡️ DATE ANCHOR LINE:
+The official starting calendar date for this trip is: ${startDate}.
+You MUST compute every day's "date" property sequentially starting from this anchor date as Day 1.`,
     },
   ];
 
@@ -104,7 +108,7 @@ for the trip.`,
           return {
             id: item.id,
             type: "accommodation" as const,
-            time: item.time || "3:00PM",
+            time: item.time || "03:00 PM",
             title: item.title,
             cost: item.cost,
             // 🛡️ Aligned perfectly to match your true database HotelItemSchema!

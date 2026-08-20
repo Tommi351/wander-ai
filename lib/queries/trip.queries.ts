@@ -12,12 +12,35 @@ export const getTrips = async (): Promise<TripDTO[]> => {
     const trips = await prisma.trip.findMany({
       where: { userId: user.id },
       orderBy: { updatedAt: "desc" },
-      include: {
-        conversation: true,
+      select: {
+        id: true,
+        title: true,
+        destination: true,
+        travelers: true,
+        budgetTier: true,
+        interests: true,
+        origin: true,
+        startDate: true,
+        endDate: true,
+        budget: true,
+        status: true,
+        updatedAt: true,
+        conversation: {
+          select: {
+            id: true,
+          },
+        },
+        // 🔥 Performance Optimization: We explicitly set this to false/omitted during SQL loading
+        // to prevent Postgres from extracting megabytes of text data on index dashboard pages.
       },
     });
 
-    return trips.map(toTripDTO);
+    return trips.map((trip) => {
+      return toTripDTO({
+        ...trip,
+        itineraryJson: null,
+      } as any);
+    });
   } catch (err) {
     console.error("Critical: Failed to fetch user trip index:", err);
     throw new Error("Failed to fetch user trips");
