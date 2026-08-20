@@ -1,5 +1,3 @@
-"use server";
-
 import type OpenAI from "openai";
 import { getOpenAIClient } from "./openai";
 import { prisma } from "../db";
@@ -15,6 +13,7 @@ import { BudgetTier, Prisma } from "../generated/prisma";
 
 import { z } from "zod";
 import { addDays } from "../utils";
+import { requireUser } from "@/auth";
 
 const plannerJsonSchema = z.toJSONSchema(AITripPlanningResponseSchema);
 
@@ -105,8 +104,10 @@ export async function updateTripFromPlannerResponse(
   tripId: string,
   data: Partial<AITripPlanningResponse["updatedTripData"]>,
 ) {
+  const user = await requireUser();
+
   const existingTrip = await db.trip.findUnique({
-    where: { id: tripId },
+    where: { id: tripId, userId: user.id },
     select: {
       startDate: true,
     },
@@ -131,6 +132,7 @@ export async function updateTripFromPlannerResponse(
   return db.trip.update({
     where: {
       id: tripId,
+      userId: user.id,
     },
     data: updateData,
   });
@@ -138,18 +140,20 @@ export async function updateTripFromPlannerResponse(
 
 export async function updatePreferencesFromPlannerResponse(
   db: Prisma.TransactionClient | typeof prisma,
-  clerkUserId: string, // Match your Clerk session ID key naming convention
   preferencesData: NonNullable<AITripPlanningResponse["travelPreferences"]>,
 ) {
+  const user = await requireUser();
+
   if (!preferencesData) return null;
 
   // 1. Fetch the user's existing JSON preferences block to prevent wiping out unmentioned keys
-  const user = await db.user.findUnique({
-    where: { clerkId: clerkUserId },
+  const userPreferences = await db.user.findUnique({
+    where: { id: user.id },
     select: { preferences: true },
   });
 
-  const existingPreferences = (user?.preferences as UserPreferences) || {};
+  const existingPreferences =
+    (userPreferences?.preferences as UserPreferences) || {};
 
   // 2. Compute a clean, shallow-merged delta object
   const updatedPreferencesBlock = {
@@ -175,7 +179,7 @@ export async function updatePreferencesFromPlannerResponse(
   // 3. Write the fully synchronized JSON object back to your User model
   return db.user.update({
     where: {
-      clerkId: clerkUserId,
+      id: user.id,
     },
     data: {
       // Prisma cleanly serializes this JavaScript object directly into Postgres JSONB format

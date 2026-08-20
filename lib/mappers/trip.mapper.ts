@@ -1,6 +1,6 @@
-import { Trip, TripPlanningState } from "@/types/global";
+import { TripPlanningState } from "@/types/global";
 import { differenceInDays } from "../utils";
-import { BudgetTier } from "../generated/prisma";
+import { BudgetTier, type Trip } from "../generated/prisma";
 
 export const toTripPlanningState = (trip: Trip | null): TripPlanningState => {
   const PLANNER_BUDGET_TIER_MAP: Record<

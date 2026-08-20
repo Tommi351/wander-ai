@@ -38,6 +38,8 @@ interface Trip {
   } | null;
 
   updatedAt: Date;
+
+  itineraryJson: TravelItinerary | null;
 }
 
 export interface TripDTO {
@@ -53,7 +55,7 @@ export interface TripDTO {
   travelers: number | null;
 
   budget: number | null;
-  budgetTier: BudgetTier | null;
+  budgetTier: "budget" | "mid-range" | "luxury" | null;
 
   interests: string[];
 
@@ -61,7 +63,7 @@ export interface TripDTO {
   conversationId: string | null;
   updatedAt: string;
 
-  itineraryJson?: any; // raw for now (Phase 2–3)
+  itineraryJson: TravelItinerary | null;
 }
 
 export interface TripCard {
@@ -100,73 +102,6 @@ export interface MessageListProps {
   onUISubmit: (event: PlannerUIEvent) => void;
 }
 
-// 🌍 MAP COORDINATE COMPONENT
-export interface GeoLocation {
-  lat: number;
-  lng: number;
-  address: string;
-}
-
-// ✈️ TIMELINE ITEM SUB-TYPES
-export interface FlightItem {
-  id: string;
-  type: "flight";
-  time: string; // e.g., "08:30 AM"
-  airline: string;
-  flightNumber: string;
-  cost: number;
-  bookingUrl: string;
-  departureAirport: string;
-
-  arrivalAirport: string;
-
-  departureTime: string; // e.g., "08:30 AM"
-
-  arrivalTime: string; // e.g., "08:30 AM"
-}
-
-export interface HotelItem {
-  id: string;
-  type: "accommodation";
-  checkIn: string;
-  checkOut: string;
-  name: string;
-  pricePerNight: number;
-  nights: number;
-  location: GeoLocation;
-  bookingUrl: string;
-}
-
-export interface ActivityItem {
-  id: string;
-  type: "activity";
-  time: string; // e.g., "11:00 AM"
-  description: string;
-  duration: string;
-  category: string;
-  cost: number;
-  location: GeoLocation;
-  bookingUrl: string;
-}
-
-// Discriminated Union for easy type guard checking in loops
-export type TimelineItem = FlightItem | HotelItem | ActivityItem;
-
-// 🗺️ TOP-LEVEL ITINERARY TREE
-export interface ItineraryDay {
-  dayNumber: number;
-  date: string; // e.g., "2026-06-15"
-  items: TimelineItem[];
-}
-
-export interface TravelItinerary {
-  tripId: string;
-  destination: string;
-  totalBudget: number;
-  currency: string;
-  timeline: ItineraryDay[];
-}
-
 // AI Types
 export interface TripPlanningState {
   tripData: {
@@ -185,6 +120,7 @@ export interface TripPlanningState {
   complete: boolean;
 }
 
+// Planner AI Inputs
 export interface PlannerServiceInput {
   conversationHistory: OpenAI.Chat.ChatCompletionMessageParam[];
 
@@ -265,5 +201,16 @@ export type ExtractedPreferences = NonNullable<
 
 export type PlannerSubmission = {
   tripData: Partial<AITripPlanningResponse["updatedTripData"]>;
+  travelPreferences: AITripPlanningResponse["travelPreferences"] | null;
+};
+
+// Generator AI Inputs
+export type GeneratorServiceInput = {
+  tripId: string;
+  finalSnapShot: PlannerSubmission;
+};
+
+export type GeneratorSubmission = {
+  tripData: Required<NonNullable<AITripPlanningResponse["updatedTripData"]>>;
   travelPreferences: AITripPlanningResponse["travelPreferences"] | null;
 };

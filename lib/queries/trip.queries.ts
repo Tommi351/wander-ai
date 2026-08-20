@@ -24,16 +24,23 @@ export const getTrips = async (): Promise<TripDTO[]> => {
         endDate: true,
         budget: true,
         status: true,
+        updatedAt: true,
         conversation: {
           select: {
             id: true,
           },
         },
-        updatedAt: true,
+        // 🔥 Performance Optimization: We explicitly set this to false/omitted during SQL loading
+        // to prevent Postgres from extracting megabytes of text data on index dashboard pages.
       },
     });
 
-    return trips.map(toTripDTO);
+    return trips.map((trip) => {
+      return toTripDTO({
+        ...trip,
+        itineraryJson: null,
+      } as any);
+    });
   } catch (err) {
     console.error("Critical: Failed to fetch user trip index:", err);
     throw new Error("Failed to fetch user trips");
@@ -49,20 +56,8 @@ export const getTripById = async (tripId: string) => {
         id: tripId,
         userId: user.id,
       },
-      select: {
-        id: true,
-        title: true,
-        destination: true,
-        travelers: true,
-        budgetTier: true,
-        interests: true,
-        origin: true,
-        startDate: true,
-        endDate: true,
-        budget: true,
-        status: true,
-        itineraryJson: true, // Crucial: Includes data payload for your frontend planner view
-        updatedAt: true,
+      include: {
+        conversation: true,
       },
     });
 

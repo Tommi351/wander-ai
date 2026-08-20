@@ -29,14 +29,10 @@ export const syncTravelPreferencesAction = async (
   try {
     // 1. Get the authenticated user ID from Clerk safely on the server side
     const user = await requireUser();
-    if (!user.clerkId) throw new Error("Unauthorized");
+    if (!user.id) throw new Error("Unauthorized");
 
     // 2. Pass standard prisma client straight to your new dedicated helper
-    await updatePreferencesFromPlannerResponse(
-      prisma,
-      user.clerkId,
-      uiPreferencesData,
-    );
+    await updatePreferencesFromPlannerResponse(prisma, uiPreferencesData);
     // If user.clerkID doesn't work, change to user.id
 
     return { success: true };

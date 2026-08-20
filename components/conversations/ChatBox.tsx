@@ -5,6 +5,7 @@ import ChatInput from "./ChatInput";
 import MessageList from "./MessageList";
 import {
   ConversationMessage,
+  GeneratorSubmission,
   PlannerSubmission,
   PlannerUIEvent,
 } from "@/types/global";
@@ -15,19 +16,27 @@ import {
 } from "@/lib/actions/sync.action";
 import {
   AITripPlanningResponse,
+  CanonicalItinerary,
   type UserPreferences,
 } from "@/lib/validations";
 import { startItineraryWithFullSnapshotAction } from "@/lib/actions/generate.action";
+import { useRouter } from "next/navigation";
+import TravelLoader from "../trips/TravelLoader";
 
 const ChatBox = ({
   initialMessages,
   conversationId,
   tripId,
+  onGenerationComplete,
 }: {
   initialMessages: ConversationMessage[];
   conversationId: string;
   tripId: string;
+  // 🛡️ Phase 4C Progression Hook: Added to handle viewport switching gracefully!
+  onGenerationComplete?: (itinerary: CanonicalItinerary) => void;
 }) => {
+  const router = useRouter();
+
   const [messages, setMessages] = useState(initialMessages);
 
   const [tripState, setTripState] = useState<PlannerSubmission>({
@@ -36,6 +45,7 @@ const ChatBox = ({
   });
 
   const [isPlanning, startPlanning] = useTransition();
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -108,6 +118,42 @@ const ChatBox = ({
   };
 
   const handleSend = sendToPlanner;
+
+  const handleFinalSubmission = async (
+    submissionPayload: GeneratorSubmission,
+  ) => {
+    setError(null);
+    setIsGenerating(true);
+
+    try {
+      const res = await startItineraryWithFullSnapshotAction(
+        tripId,
+        submissionPayload,
+      );
+
+      if (!res.success) {
+        setError(
+          res.error || "Failed to create your structured travel layout.",
+        );
+        return;
+      }
+
+      // 3. TRIGGER VIEW PORT TRANSITION (Phase 4C Entry Portal!)
+      if (onGenerationComplete && res.data) {
+        onGenerationComplete(res.data);
+      }
+
+      router.push(`/trips/${tripId}`);
+      router.refresh(); // Hard flushes the client-side cache for the current route
+    } catch (err) {
+      console.error("Generation pipeline failure", err);
+      setError(
+        "A fatal transmission error occurred while launching the itinerary builder.",
+      );
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleUISubmit = (event: PlannerUIEvent) => {
     setError(null);
@@ -220,39 +266,12 @@ const ChatBox = ({
       case "final":
         /* * The FinalSummaryTicket gives us the complete * PlannerSubmission. * * This is the gateway into Phase 4B. * * DO NOT generate the itinerary here yet unless * your Phase 4B action already exists. */
         setTripState(event.value);
+        handleFinalSubmission(event.value as GeneratorSubmission);
 
-        // TODO: start Phase 4B itinerary generation and remove this comment when done Phase 4B //
-        (async () => {
-          try {
-            // 1. Fire the full unified snapshot directly to your Generation Orchestrator
-            // Note: Since Clerk user tracking lives on the server, your server action
-            // will extract the clerkUserId from auth() automatically!
-            const res = await startItineraryWithFullSnapshotAction(
-              tripId,
-              event.value,
-            );
-
-            if (!res.success) {
-              setError(res.error || "Failed to start building your itinerary.");
-              return;
-            }
-
-            // 2. Append a clean confirmation narrative to the chat history list log
-            await sendToPlanner(
-              "Everything looks perfect! Let's build my itinerary.",
-            );
-
-            // 3. PROGRESSION ADVANCEMENT: At this point, your layout can show a
-            // cinematic loader, or your real-time listeners will automatically load Phase 5!
-            console.log("🚀 Phase 4B Gateway Initialized Successfully!");
-          } catch (err) {
-            console.error("Catastrophic generation gateway failure:", err);
-            setError(
-              "A critical network error occurred while launching the itinerary engine.",
-            );
-          }
-        })();
-        break;
+        // 3. PROGRESSION ADVANCEMENT: At this point, your layout can show a
+        // cinematic loader, or your real-time listeners will automatically load Phase 5!
+        console.log("🚀 Phase 4B Gateway Initialized Successfully!");
+        return;
       default: /* * TypeScript should make this unreachable because * PlannerUIEvent is a discriminated union. */
         break;
     }
@@ -307,6 +326,14 @@ const ChatBox = ({
     }
   };
 
+  if (isGenerating) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-50/80 backdrop-blur-xs animate-fade-in w-full h-screen">
+        <TravelLoader />
+      </div>
+    );
+  }
+
   return (
     <div className="h-[90vh] flex flex-col">
       <MessageList
@@ -315,7 +342,6 @@ const ChatBox = ({
         onUISubmit={handleUISubmit}
       />
 
-      {/* Floating or Inline indicators look much cleaner */}
       <div className="px-4">
         {isPlanning && (
           <p className="text-base text-gray-400 font-medium animate-pulse mb-1">
