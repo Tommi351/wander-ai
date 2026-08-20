@@ -38,6 +38,8 @@ interface Trip {
   } | null;
 
   updatedAt: Date;
+
+  itineraryJson: TravelItinerary | null;
 }
 
 export interface TripDTO {
@@ -53,7 +55,7 @@ export interface TripDTO {
   travelers: number | null;
 
   budget: number | null;
-  budgetTier: BudgetTier | null;
+  budgetTier: "budget" | "mid-range" | "luxury" | null;
 
   interests: string[];
 
@@ -61,7 +63,7 @@ export interface TripDTO {
   conversationId: string | null;
   updatedAt: string;
 
-  itineraryJson?: any; // raw for now (Phase 2–3)
+  itineraryJson: TravelItinerary | null;
 }
 
 export interface TripCard {
@@ -100,70 +102,90 @@ export interface MessageListProps {
   onUISubmit: (event: PlannerUIEvent) => void;
 }
 
-// 🌍 MAP COORDINATE COMPONENT
+// 🌍 Shared Maps geographic contract used by hotels and activities
 export interface GeoLocation {
   lat: number;
   lng: number;
   address: string;
 }
 
-// ✈️ TIMELINE ITEM SUB-TYPES
+// 🌐 The Dual-Track Data Origin Flag
+export type VerificationSource =
+  | "AI_SUGGESTION"
+  | "API_HYDRATED"
+  | "CACHE_MATCH"; // this Cache_Match could be good for caching and stuff
+
+// ✈️ Rich Frontend Model: Flight Item
 export interface FlightItem {
-  id: string;
+  id: string; // Internal tracking key (e.g., "flight_suggested_0")
   type: "flight";
-  time: string; // e.g., "08:30 AM"
-  airline: string;
-  flightNumber: string;
+  time: string; // e.g., "08:30 AM" for chronological rendering
+  title: string; // UI Header text
   cost: number;
-  bookingUrl: string;
-  departureAirport: string;
+  bookingUrl: string | null; // Nullable because the AI track cannot invent real links!
+  source: VerificationSource;
 
-  arrivalAirport: string;
-
-  departureTime: string; // e.g., "08:30 AM"
-
-  arrivalTime: string; // e.g., "08:30 AM"
+  // Real-world primitives populated initially as placeholders, filled by tool calls/Phase 7
+  airline: string | null;
+  flightNumber: string | null;
+  departureAirport: string | null;
+  arrivalAirport: string | null;
+  departureTime: string | null;
+  arrivalTime: string | null;
 }
 
+// 🏨 Rich Frontend Model: Accommodation Item
 export interface HotelItem {
-  id: string;
+  id: string; // Internal tracking key for hotels
   type: "accommodation";
-  checkIn: string;
-  checkOut: string;
-  name: string;
-  pricePerNight: number;
+  time: string; // Default anchor time (e.g., "03:00 PM" check-in)
+  title: string; // UI Header text (Hotel Name)
+  cost: number;
+  location: GeoLocation; // Nested geographic object instead of flat keys!
+  bookingUrl: string | null; // Nullable because the AI track cannot invent real links!
+  source: VerificationSource;
+
+  // Real-world primitives populated initially as placeholders, filled by tool calls/Phase 7
+  pricePerNight: number | null;
   nights: number;
-  location: GeoLocation;
-  bookingUrl: string;
+  checkIn: string | null;
+  checkOut: string | null;
 }
 
+// 🍽️ Rich Frontend Model: Activity Item
 export interface ActivityItem {
   id: string;
   type: "activity";
   time: string; // e.g., "11:00 AM"
-  description: string;
-  duration: string;
-  category: string;
+  title: string; // UI Header text (Activity description)
   cost: number;
-  location: GeoLocation;
-  bookingUrl: string;
+  location: GeoLocation; // Nested geographic object!
+  bookingUrl: string | null; // Nullable because the AI track cannot invent real links!
+  source: VerificationSource;
+
+  duration: string; // e.g., "2 Hours" derived field
+  category: string; // e.g., "Sightseeing"
 }
 
-// Discriminated Union for easy type guard checking in loops
+// 👑 The Discriminated Union: The ultimate loop-traversal contract
 export type TimelineItem = FlightItem | HotelItem | ActivityItem;
 
-// 🗺️ TOP-LEVEL ITINERARY TREE
+// 📅 The Clean Day Tree Node
 export interface ItineraryDay {
   dayNumber: number;
-  date: string; // e.g., "2026-06-15"
-  items: TimelineItem[];
+  date: string; // YYYY-MM-DD
+  items: TimelineItem[]; // Handled by switch(item.type) on the UI
 }
 
+// 🏆 Top-Level Travel Itinerary DTO (Matches what unpacks from your Prisma Json column)
 export interface TravelItinerary {
-  tripId: string;
   destination: string;
-  totalBudget: number;
+  budgetTier: "budget" | "mid-range" | "luxury";
+  totalEstimatedCost: number;
   currency: string;
+  notes: string;
+
+  // The actual sequential rendering timeline
   timeline: ItineraryDay[];
 }
 
@@ -185,6 +207,7 @@ export interface TripPlanningState {
   complete: boolean;
 }
 
+// Planner AI Inputs
 export interface PlannerServiceInput {
   conversationHistory: OpenAI.Chat.ChatCompletionMessageParam[];
 
@@ -266,4 +289,10 @@ export type ExtractedPreferences = NonNullable<
 export type PlannerSubmission = {
   tripData: Partial<AITripPlanningResponse["updatedTripData"]>;
   travelPreferences: AITripPlanningResponse["travelPreferences"] | null;
+};
+
+// Generator AI Inputs
+export type GeneratorServiceInput = {
+  tripId: string;
+  finalSnapShot: PlannerSubmission;
 };

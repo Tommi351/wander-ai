@@ -12,24 +12,8 @@ export const getTrips = async (): Promise<TripDTO[]> => {
     const trips = await prisma.trip.findMany({
       where: { userId: user.id },
       orderBy: { updatedAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        destination: true,
-        travelers: true,
-        budgetTier: true,
-        interests: true,
-        origin: true,
-        startDate: true,
-        endDate: true,
-        budget: true,
-        status: true,
-        conversation: {
-          select: {
-            id: true,
-          },
-        },
-        updatedAt: true,
+      include: {
+        conversation: true,
       },
     });
 
@@ -49,20 +33,8 @@ export const getTripById = async (tripId: string) => {
         id: tripId,
         userId: user.id,
       },
-      select: {
-        id: true,
-        title: true,
-        destination: true,
-        travelers: true,
-        budgetTier: true,
-        interests: true,
-        origin: true,
-        startDate: true,
-        endDate: true,
-        budget: true,
-        status: true,
-        itineraryJson: true, // Crucial: Includes data payload for your frontend planner view
-        updatedAt: true,
+      include: {
+        conversation: true,
       },
     });
 

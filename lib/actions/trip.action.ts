@@ -111,6 +111,7 @@ export const deleteTrip = async (tripId: string) => {
       await tx.tripVersion.deleteMany({
         where: {
           tripId: tripId,
+          userId: user.id,
         },
       });
 

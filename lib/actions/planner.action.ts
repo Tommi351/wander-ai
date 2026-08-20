@@ -6,7 +6,7 @@ import { createMessage } from "./message.action";
 import { plannerService, updateTripFromPlannerResponse } from "../ai/planner";
 import { toTripPlanningState } from "../mappers/trip.mapper";
 import { toUserPreferences } from "../mappers/user.mapper";
-import { PlannerActionResult } from "@/types/global";
+import { PlannerActionResult, PlannerMessageMetadata } from "@/types/global";
 import { type UserPreferences } from "../validations";
 
 export const plannerAction = async (
@@ -33,7 +33,10 @@ export const plannerAction = async (
     if (!userConversations) {
       return {
         success: false,
-        savedUserMessage,
+        savedUserMessage: {
+          ...savedUserMessage,
+          metadata: savedUserMessage.metadata as PlannerMessageMetadata,
+        },
         assistantMessage: null,
         error: "Unable to fetch user conversation",
       };
@@ -103,14 +106,25 @@ export const plannerAction = async (
     return {
       success: true,
       ...plannerResponse,
-      savedUserMessage,
-      assistantMessage,
+      savedUserMessage: {
+        ...savedUserMessage,
+        metadata: savedUserMessage.metadata as PlannerMessageMetadata,
+      },
+      assistantMessage: {
+        ...assistantMessage,
+        metadata: assistantMessage.metadata as PlannerMessageMetadata,
+      },
     };
   } catch (err) {
     console.error("Unable to plan trip:", err);
     return {
       success: false,
-      savedUserMessage,
+      savedUserMessage: savedUserMessage
+        ? {
+            ...savedUserMessage,
+            metadata: savedUserMessage.metadata as PlannerMessageMetadata,
+          }
+        : null,
       assistantMessage: null,
       error: "Trip planning failed",
     };

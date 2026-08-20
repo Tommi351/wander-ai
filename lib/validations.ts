@@ -207,3 +207,131 @@ export const AITripPlanningResponseSchema = z.object({
 export type AITripPlanningResponse = z.infer<
   typeof AITripPlanningResponseSchema
 >;
+
+// 🌍 Shared Location Blueprint (Fully nullable until Phase 7)
+export const GeoLocationSchema = z
+  .object({
+    lat: z.number().nullable().default(null),
+    lng: z.number().nullable().default(null),
+    address: z.string().nullable().default(null),
+  })
+  .nullable()
+  .default(null);
+
+// 🌐 The Dual-Track Flagging Metric
+export const VerificationSourceSchema = z.enum([
+  "AI_SUGGESTION",
+  "API_HYDRATED",
+  "CACHE_MATCH",
+]);
+
+// ✈️ Track-Safe Flight Blueprint
+export const FlightItemSchema = z.object({
+  id: z.string(), // E.g., "flight_suggested_1" or "flight_amadeus_xyz"
+  type: z.literal("flight"),
+  time: z.string(),
+  title: z.string(), // E.g., "Flight to Lisbon"
+  cost: z.number().nonnegative(),
+  bookingUrl: z.string().nullable(), // Nullable because AI can't invent real links!
+  source: VerificationSourceSchema.default("AI_SUGGESTION"),
+
+  // Optional/Nullable primitives until Phase 7 Background Hydration kicks in and Skyscanner API is used
+  flightNumber: z.string().nullable().default(null),
+  airline: z.string().nullable().default(null),
+  departureAirport: z.string().nullable().default(null),
+  arrivalAirport: z.string().nullable().default(null),
+  departureTime: z.string().nullable().default(null),
+  arrivalTime: z.string().nullable().default(null),
+});
+
+// 🏨 Track-Safe Accommodation Blueprint
+export const HotelItemSchema = z.object({
+  id: z.string(),
+  type: z.literal("accommodation"),
+  time: z.string().default("03:00 PM"), // Check-in time anchor
+  title: z.string(), // Hotel Name
+  cost: z.number().nonnegative(), // Price mapping
+  location: GeoLocationSchema,
+  bookingUrl: z.string().nullable(), // Nullable or optional until Phase 7
+  source: VerificationSourceSchema.default("AI_SUGGESTION"),
+
+  //Optional/Nullable Primitives until Phase 7 kicks in and Booking.com API is used
+  pricePerNight: z.number().nonnegative().optional(),
+  nights: z.number().int().positive().default(1),
+  checkIn: z.string().default("03:00 PM"),
+  checkOut: z.string().default("11:00 AM"),
+});
+
+// 🍽️ Track-Safe Activity Blueprint
+export const ActivityItemSchema = z.object({
+  id: z.string(),
+  type: z.literal("activity"),
+  time: z.string(),
+  title: z.string(), // Description name
+  cost: z.number().nonnegative(),
+  location: GeoLocationSchema,
+  bookingUrl: z.string().nullable(), // Nullable/Optional until Phase 7 and Viator API is used
+  source: VerificationSourceSchema.default("AI_SUGGESTION"),
+
+  duration: z.string().default("2 Hours"),
+  category: z.string().default("Sightseeing"),
+});
+
+// 👑 Option 3 Style Discriminated Union for Timeline Loop Rendering
+export const TimelineItemSchema = z.discriminatedUnion("type", [
+  FlightItemSchema,
+  HotelItemSchema,
+  ActivityItemSchema,
+]);
+
+// 📅 Clean Scannable Day Schema (Matches Option 2 Flattening)
+export const ItineraryDaySchema = z.object({
+  dayNumber: z.number().int().positive(),
+  date: z.string(), // YYYY-MM-DD
+  items: z.array(TimelineItemSchema),
+});
+
+// 🏆 THE CANONICAL MASTER ITINERARY CONTRACT (Saves to database column)
+export const CanonicalItinerarySchema = z.object({
+  destination: z.string(),
+  budgetTier: z.enum(["budget", "mid-range", "luxury"]),
+  totalEstimatedCost: z.number().nonnegative(),
+  currency: z.string().default("USD"),
+  notes: z.string().default(""),
+
+  // The core loop array
+  timeline: z.array(ItineraryDaySchema),
+});
+
+export const LLMItineraryGenerationSchema = z.object({
+  destination: z.string(),
+  budgetTier: z.enum(["budget", "mid-range", "luxury"]),
+  totalEstimatedCost: z.number().nonnegative(),
+  currency: z.string().default("USD"),
+  notes: z.string().default(""),
+  timeline: z.array(
+    z.object({
+      dayNumber: z.number().int().positive(),
+      date: z.string(),
+      items: z.array(
+        z.object({
+          id: z.string(), // e.g., "flight_0" or "activity_1"
+          type: z.enum(["flight", "accommodation", "activity"]),
+          time: z.string(), // e.g., "08:30 AM"
+          title: z.string(), // e.g., "Flight from NYC to Lisbon" or "Waterfront Hotel Concept"
+          cost: z.number().nonnegative(),
+
+          // 🛡️ Track A Law: The AI provides the raw text suggestion here
+          address: z.string().nullable().default(null),
+
+          // Activity specific fields directly on the object (No nested options!)
+          duration: z.string().nullable().default("2 Hours"),
+          category: z.string().nullable().default("Sightseeing"),
+        }),
+      ),
+    }),
+  ),
+});
+
+export type CanonicalItinerary = z.infer<typeof CanonicalItinerarySchema>;
+export type TimelineItem = z.infer<typeof TimelineItemSchema>;
