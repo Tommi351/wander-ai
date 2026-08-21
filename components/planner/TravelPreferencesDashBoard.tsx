@@ -194,7 +194,7 @@ export function TravelPreferencesDashboard({
             </label>
 
             <select
-              value={pace}
+              value={pace ?? ""}
               onChange={(e) =>
                 setPace(e.target.value as ExtractedPreferences["pace"])
               }

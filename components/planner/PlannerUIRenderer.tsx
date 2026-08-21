@@ -1,3 +1,5 @@
+"use client";
+
 import { OriginForm } from "./OriginForm";
 import { DestinationForm } from "./DestinationForm";
 import GroupSizeInput from "./GroupSizeInput";

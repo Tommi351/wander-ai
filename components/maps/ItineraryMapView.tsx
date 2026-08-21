@@ -1,5 +1,6 @@
 // components/maps/ItineraryMapView.tsx
-import React from "react";
+"use client";
+
 import { ItineraryDay } from "@/lib/validations";
 
 interface ItineraryMapViewProps {
@@ -15,7 +16,7 @@ export function ItineraryMapView({ timeline }: ItineraryMapViewProps) {
       </h4>
       <p className="text-xs max-w-xs mt-1">
         Phase 6 Core Target Space: This lane will receive your timeline items
-        array to render interactive interactive map markers.
+        array to render interactive map markers.
       </p>
     </div>
   );
