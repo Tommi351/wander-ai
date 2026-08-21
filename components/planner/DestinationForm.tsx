@@ -1,3 +1,5 @@
+"use client";
+
 import { PlannerSubmission, PlannerUIEvent } from "@/types/global";
 import { useState } from "react";
 

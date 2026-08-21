@@ -264,7 +264,7 @@ const ChatBox = ({
             : "Saved my travel preferences.";
         break;
       case "final":
-        /* * The FinalSummaryTicket gives us the complete * PlannerSubmission. * * This is the gateway into Phase 4B. * * DO NOT generate the itinerary here yet unless * your Phase 4B action already exists. */
+        /* * The FinalSummaryTicket gives us the complete PlannerSubmission. This is the gateway into itinerary generation */
         setTripState(event.value);
         handleFinalSubmission(event.value as GeneratorSubmission);
 
@@ -272,11 +272,11 @@ const ChatBox = ({
         // cinematic loader, or your real-time listeners will automatically load Phase 5!
         console.log("🚀 Phase 4B Gateway Initialized Successfully!");
         return;
-      default: /* * TypeScript should make this unreachable because * PlannerUIEvent is a discriminated union. */
+      default: /* * TypeScript should make this unreachable/impossible because PlannerUIEvent is a discriminated union. */
         break;
     }
 
-    // 🔥 To Fix the State Lifecycle Lock problem between UI Components and AI Conversation: Asynchronously synchronize the tracks/lanes without state-locking your engine!
+    // 🔥 To Fix the State Lifecycle Lock problem between UI Components and AI Conversation: Asynchronously synchronize the tracks/lanes using an IIFE instead of startPlanning so you don't state-lock your engine!
     if (deltaPayload && Object.keys(deltaPayload).length > 0) {
       // 1. Instead of using startPlanning, run as a standard async operation to control each step sequence
       (async () => {

@@ -2,6 +2,7 @@ import { getTripById } from "@/lib/queries/trip.queries";
 import { notFound } from "next/navigation";
 import { TimelineDayList } from "@/components/itinerary/TimelineDayList"; // Upcoming Phase 5 layout component
 import { ItineraryMapView } from "@/components/maps/ItineraryMapView"; // Upcoming Phase 6 layout component
+import { StickyDashboardHeader } from "@/components/itinerary/StickyDashboardHeader";
 
 type Props = {
   params: Promise<{
@@ -36,15 +37,10 @@ const TripDetails = async ({ params }: Props) => {
       {/* LEFT LANE: Chronological Itinerary Timeline Panel (Phase 5 Workspace) */}
       <div className="w-full md:w-[45%] h-full overflow-y-auto border-r border-slate-200 bg-white p-8 shadow-sm">
         <div className="mb-6">
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
-            {itineraryJson.budgetTier} • {itineraryJson.currency}
-          </span>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight mt-1">
-            {trip.title}
-          </h1>
-          <p className="text-sm text-slate-500 mt-2 font-medium">
-            {itineraryJson.notes}
-          </p>
+          <StickyDashboardHeader
+            itinerary={itineraryJson}
+            tripTitle={trip.title}
+          />
         </div>
 
         {/* Chronological Loop Engine */}

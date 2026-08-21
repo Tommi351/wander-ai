@@ -1,10 +1,10 @@
 // components/planner/forms/FinalSummaryTicket.tsx
 "use client";
 
-import { GeneratorSubmission, PlannerUIEvent } from "@/types/global";
+import { PlannerSubmission, PlannerUIEvent } from "@/types/global";
 
 interface FinalSummaryTicketProps {
-  data: GeneratorSubmission;
+  data: PlannerSubmission;
   onSubmit: (event: PlannerUIEvent) => void;
 }
 
