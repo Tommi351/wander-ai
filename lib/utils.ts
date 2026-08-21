@@ -2,7 +2,14 @@ import { TripDTO } from "@/types/global";
 import { BudgetTier, Conversation, type Trip } from "./generated/prisma";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { CanonicalItinerarySchema, TravelItinerary } from "./validations";
+import {
+  CanonicalItinerarySchema,
+  TravelItinerary,
+  TimelineItem,
+  FlightItem,
+  HotelItem,
+  ActivityItem,
+} from "./validations";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -90,3 +97,15 @@ export const toTripDTO = (trip: PrismaTripWithConversation): TripDTO => {
     itineraryJson: validatedItinerary,
   };
 };
+
+export function isFlightItem(item: TimelineItem): item is FlightItem {
+  return item.type === "flight";
+}
+
+export function isHotelItem(item: TimelineItem): item is HotelItem {
+  return item.type === "accommodation";
+}
+
+export function isActivityItem(item: TimelineItem): item is ActivityItem {
+  return item.type === "activity";
+}
