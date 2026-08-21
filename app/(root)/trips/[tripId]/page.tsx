@@ -1,7 +1,7 @@
 import { getTripById } from "@/lib/queries/trip.queries";
 import { notFound } from "next/navigation";
-// import { TimelineDayList } from "@/components/itinerary/TimelineDayList"; // Upcoming Phase 5 layout component
-// import { ItineraryMapView } from "@/components/maps/ItineraryMapView"; // Upcoming Phase 6 layout component
+import { TimelineDayList } from "@/components/itinerary/TimelineDayList"; // Upcoming Phase 5 layout component
+import { ItineraryMapView } from "@/components/maps/ItineraryMapView"; // Upcoming Phase 6 layout component
 
 type Props = {
   params: Promise<{
@@ -48,12 +48,12 @@ const TripDetails = async ({ params }: Props) => {
         </div>
 
         {/* Chronological Loop Engine */}
-        {/* <TimelineDayList timeline={itineraryJson.timeline} /> */}
+        <TimelineDayList timeline={itineraryJson.timeline} />
       </div>
 
       {/* RIGHT LANE: Interactive Geo-Anchored Map Frame Panel (Phase 6 Workspace) */}
       <div className="hidden md:block md:w-[55%] h-full bg-slate-100">
-        {/* <ItineraryMapView timeline={itineraryJson.timeline} /> */}
+        <ItineraryMapView timeline={itineraryJson.timeline} />
       </div>
     </div>
   );
