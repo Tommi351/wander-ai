@@ -238,10 +238,13 @@ export const FlightItemSchema = z.object({
   // Optional/Nullable primitives until Phase 7 Background Hydration kicks in and Skyscanner API is used
   flightNumber: z.string().nullable().default(null),
   airline: z.string().nullable().default(null),
-  departureAirport: z.string().nullable().default(null),
-  arrivalAirport: z.string().nullable().default(null),
-  departureTime: z.string().nullable().default(null),
-  arrivalTime: z.string().nullable().default(null),
+  departureAirport: z.string().nullable().default(null), // e.g., "ORD"
+  arrivalAirport: z.string().nullable().default(null), // e.g., "NRT"
+  departureTime: z.string().nullable().default(null), // ISO String
+  arrivalTime: z.string().nullable().default(null), // ISO String
+
+  // 🛰️ The single critical Phase 9 token
+  offerId: z.string().nullable().default(null),
 });
 
 // 🏨 Track-Safe Accommodation Blueprint

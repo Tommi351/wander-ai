@@ -1,18 +1,19 @@
 "use client";
 
 import { HotelItem } from "@/lib/validations";
+import { Hotel } from "lucide-react";
 
-interface HotelCardProps {
+type Props = {
   item: HotelItem;
-}
+};
 
-export function HotelCard({ item }: HotelCardProps) {
+const HotelCard = ({ item }: Props) => {
   return (
     <div className="w-full bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-sm transition-all duration-200">
       {/* Top Banner Row */}
       <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-3">
         <div className="flex items-center space-x-2">
-          <span className="text-xl">🏨</span>
+          <Hotel className="mt-1 h-5 w-5 text-emerald-600" />
           <div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
               Accommodation Anchor
@@ -38,7 +39,7 @@ export function HotelCard({ item }: HotelCardProps) {
           {/* Nested Location Rendering Vector */}
           <div className="flex items-start space-x-1 pt-0.5">
             <span className="text-xs shrink-0 mt-0.5">📍</span>
-            <p className="text-xs text-slate-500 font-medium leading-relaxed wrap-break-words">
+            <p className="text-xs text-slate-500 font-medium leading-relaxed wrap-break-word">
               {item.location?.address || "Address provisioning pending..."}
             </p>
           </div>
@@ -56,16 +57,15 @@ export function HotelCard({ item }: HotelCardProps) {
         {/* Financial Column Block */}
         <div className="text-right shrink-0">
           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
-            Est. Total
+            Estimated Cost:
           </span>
           <span className="text-lg font-black text-slate-800 tracking-tight block mt-0.5">
-            ${item.cost}
-          </span>
-          <span className="text-[9px] text-slate-400 block font-medium">
-            USD
+            {item.cost === 0 ? "FREE" : `$${item.cost}`}
           </span>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default HotelCard;

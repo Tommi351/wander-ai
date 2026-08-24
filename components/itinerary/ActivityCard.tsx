@@ -1,6 +1,7 @@
 "use client";
 
 import { ActivityItem } from "@/lib/validations";
+import { MapPin } from "lucide-react";
 
 interface ActivityCardProps {
   item: ActivityItem;
@@ -43,7 +44,7 @@ export function ActivityCard({ item }: ActivityCardProps) {
       {/* Top Banner Row */}
       <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-3">
         <div className="flex items-center space-x-2">
-          <span className="text-xl">🎯</span>
+          <MapPin className="mt-1 h-5 w-5 text-orange-600" />
           <div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
               Activity Event
@@ -72,7 +73,7 @@ export function ActivityCard({ item }: ActivityCardProps) {
 
           <div className="flex items-start space-x-1 pt-0.5">
             <span className="text-xs shrink-0 mt-0.5">📍</span>
-            <p className="text-xs text-slate-500 font-medium leading-relaxed wrap-break-words">
+            <p className="text-xs text-slate-500 font-medium leading-relaxed wrap-break-word">
               {item.location?.address || "Location matching pending..."}
             </p>
           </div>
@@ -87,13 +88,10 @@ export function ActivityCard({ item }: ActivityCardProps) {
         {/* Financial Column Block */}
         <div className="text-right shrink-0">
           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
-            Est. Cost
+            Estimated Cost:
           </span>
           <span className="text-lg font-black text-slate-800 tracking-tight block mt-0.5">
             {item.cost === 0 ? "FREE" : `$${item.cost}`}
-          </span>
-          <span className="text-[9px] text-slate-400 block font-medium">
-            USD
           </span>
         </div>
       </div>
