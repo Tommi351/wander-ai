@@ -1,6 +1,7 @@
 "use client";
 
 import { FlightItem } from "@/lib/validations";
+import { Plane } from "lucide-react";
 
 interface FlightCardProps {
   item: FlightItem;
@@ -8,11 +9,11 @@ interface FlightCardProps {
 
 export function FlightCard({ item }: FlightCardProps) {
   return (
-    <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="w-full bg-white border border-blue-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
       {/* Meta Row Line */}
       <div className="flex justify-between items-center border-b border-slate-800 pb-3 mb-3">
         <div className="flex items-center space-x-2">
-          <span className="text-xl">✈️</span>
+          <Plane className="mt-1 h-5 w-5 text-blue-600" />
           <div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
               Transit Segment
@@ -32,7 +33,7 @@ export function FlightCard({ item }: FlightCardProps) {
       {/* Primary Detail Row */}
       <div className="flex justify-between items-center gap-4">
         <div className="space-y-1 flex-1">
-          <h4 className="text-sm font-black text-white tracking-tight leading-snug">
+          <h4 className="text-sm font-black text-black tracking-tight leading-snug">
             {item.title}
           </h4>
           <p className="text-[11px] text-slate-400 leading-normal font-medium">
@@ -44,13 +45,10 @@ export function FlightCard({ item }: FlightCardProps) {
         {/* Financial Column Block */}
         <div className="text-right shrink-0">
           <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">
-            Est. Cost
+            Estimated Cost:
           </span>
           <span className="text-lg font-black text-emerald-400 tracking-tight block mt-0.5">
-            ${item.cost}
-          </span>
-          <span className="text-[9px] text-slate-500 block font-medium">
-            USD
+            ${item.cost === 0 ? "FREE" : `$${item.cost}`}
           </span>
         </div>
       </div>

@@ -3,7 +3,7 @@
 import { TimelineItem } from "@/lib/validations";
 import { isFlightItem, isHotelItem, isActivityItem } from "@/lib/utils";
 import { FlightCard } from "./FlightCard";
-import { HotelCard } from "./HotelCard";
+import HotelCard from "./HotelCard";
 import { ActivityCard } from "./ActivityCard";
 
 interface TimelineItemRendererProps {

@@ -1,6 +1,6 @@
 import { getTripById } from "@/lib/queries/trip.queries";
 import { notFound } from "next/navigation";
-import { TimelineDayList } from "@/components/itinerary/TimelineDayList"; // Upcoming Phase 5 layout component
+import TimelineDayList from "@/components/itinerary/TimelineDayList"; // Upcoming Phase 5 layout component
 import { ItineraryMapView } from "@/components/maps/ItineraryMapView"; // Upcoming Phase 6 layout component
 import { StickyDashboardHeader } from "@/components/itinerary/StickyDashboardHeader";
 
@@ -38,7 +38,7 @@ const TripDetails = async ({ params }: Props) => {
       <div className="w-full md:w-[45%] h-full overflow-y-auto border-r border-slate-200 bg-white p-8 shadow-sm">
         <div className="mb-6">
           <StickyDashboardHeader
-            itinerary={itineraryJson}
+            itineraryJson={itineraryJson}
             tripTitle={trip.title}
           />
         </div>
