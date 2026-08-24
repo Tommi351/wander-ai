@@ -11,6 +11,7 @@ interface ItineraryMapViewProps {
 }
 
 export function ItineraryMapView({ timeline }: ItineraryMapViewProps) {
+  const [shouldSpin, setShouldSpin] = useState(true);
   const [activeMap, setActiveMap] = useState<mapboxgl.Map | null>(null);
 
   // 🛡️ Memory Guard Ref: Tracks mounted elements to completely stop duplicate pin stack leaks
@@ -26,6 +27,13 @@ export function ItineraryMapView({ timeline }: ItineraryMapViewProps) {
 
   useEffect(() => {
     if (!activeMap || !timeline || timeline.length === 0) return;
+
+    // Hoist token assignment tracking directly to step-out early from missing environment profiles
+    const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+    if (!token) return;
+
+    let cancelled = false;
+    const controller = new AbortController();
 
     markersRef.current.forEach((marker) => marker.remove());
     markersRef.current = [];
@@ -46,14 +54,16 @@ export function ItineraryMapView({ timeline }: ItineraryMapViewProps) {
       let validPinsCount = 0;
 
       for (const address of addressesArray) {
-        const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "";
+        if (cancelled) return;
+
         const encodedAddress = encodeURIComponent(address);
-        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedAddress}.json?access_token=${token}`;
+        const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${encodedAddress}.json?access_token=${token}`;
         try {
           // Fire a direct background request to Mapbox's edge forward-geocoding engine
-          const response = await fetch(url);
+          const response = await fetch(url, { signal: controller.signal });
           if (!response.ok) continue;
           const data = await response.json();
+          if (cancelled) return;
 
           // Extract the [longitude, latitude] array from the first verified search index
           const feature = data.features?.[0];
@@ -73,6 +83,7 @@ export function ItineraryMapView({ timeline }: ItineraryMapViewProps) {
           bounds.extend([lng, lat]);
           validPinsCount++;
         } catch (err) {
+          if (controller.signal.aborted) return;
           console.error(
             `Failed client-side geocoding resolution for: ${address}`,
             err,
@@ -83,7 +94,10 @@ export function ItineraryMapView({ timeline }: ItineraryMapViewProps) {
       // 5. VIEWPORT FOCUS RE-CENTER MATRIX
       // If we mapped multiple pins cleanly, automatically adjust the camera bounding box
       // to center directly over the target destination bounds smoothly!
-      if (validPinsCount > 0) {
+      if (!cancelled && validPinsCount > 0) {
+        // 🚀 THE SYSTEM RECALIBRATION: Turn off the spin loop right before flying the camera!
+        setShouldSpin(false);
+
         activeMap.fitBounds(bounds, {
           padding: 64,
           maxZoom: 12,
@@ -96,12 +110,15 @@ export function ItineraryMapView({ timeline }: ItineraryMapViewProps) {
 
     // 🛡️ Cleanup: Terminate markers instantly on component unmount to maintain strict system hygiene
     return () => {
+      cancelled = true;
+      controller.abort();
       markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current = [];
     };
   }, [activeMap, timeline]);
   return (
     <div className="w-full h-full relative">
-      <GlobalMap onMapLoad={handleMapReady} />
+      <GlobalMap onMapLoad={handleMapReady} spin={shouldSpin} />
     </div>
   );
 }

@@ -8,12 +8,14 @@ interface GlobalMapProps {
   onMapLoad?: (map: mapboxgl.Map) => void;
   defaultCenter?: [number, number];
   defaultZoom?: number;
+  spin?: boolean;
 }
 
 function GlobalMap({
   onMapLoad,
   defaultCenter = [139.6503, 35.6762],
   defaultZoom = 1.8,
+  spin = true,
 }: GlobalMapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<mapboxgl.Map | null>(null);
@@ -24,11 +26,25 @@ function GlobalMap({
   const rotationRef = useRef(0);
   const animationFrameIdRef = useRef<number | null>(null);
 
+  // 🛡️ Hoist and mirror the dynamic spin controller flag to prevent per-frame re-paints
+  const spinEnabledRef = useRef(spin);
   useEffect(() => {
+    spinEnabledRef.current = spin;
+  }, [spin]);
+
+  useEffect(() => {
+    const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+
+    // 🛡️ Fail Visibly: Guard against unconfigured or broken environment assets instantly
+    if (!token) {
+      console.error("Missing NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN configuration.");
+      return;
+    }
+
     if (!mapContainerRef.current) return;
 
     const map = new mapboxgl.Map({
-      accessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "",
+      accessToken: token,
       container: mapContainerRef.current,
       style: "mapbox://styles/mapbox/standard",
       projection: "globe",
@@ -50,9 +66,19 @@ function GlobalMap({
 
     map.touchZoomRotate.enable();
 
+    const spinStartedRef = { current: false };
+
     map.on("style.load", () => {
+      // 🛡️ Leaking Preventer: Guarantee exactly one requestAnimationFrame thread loops
+      if (spinStartedRef.current) return;
+      spinStartedRef.current = true;
+
       function spinGlobe() {
-        if (!userInteracting.current && mapInstanceRef.current) {
+        if (
+          spinEnabledRef.current &&
+          !userInteracting.current &&
+          mapInstanceRef.current
+        ) {
           rotationRef.current += 0.05;
 
           if (rotationRef.current >= 360) rotationRef.current = 0;

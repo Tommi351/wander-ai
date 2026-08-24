@@ -6,7 +6,18 @@ type Props = {
 };
 
 const getSection = (time: string) => {
-  const hour = Number(time.split(":")[0]);
+  // Cleanly split the string parameters to extract the hour token and meridiem string
+  // Handles values like "03:00 PM" -> parts: ["03", "00 PM"]
+  const parts = time.split(":");
+  if (parts.length < 2) return "Morning";
+
+  let hour = Number(parts[0]);
+  const isPM = parts[1].toLowerCase().includes("pm");
+  const isAM = parts[1].toLowerCase().includes("am");
+
+  // Standardize values to an ironclad 24-hour military timeline matrix
+  if (isPM && hour !== 12) hour += 12;
+  if (isAM && hour === 12) hour = 0;
 
   if (hour < 12) return "Morning";
   if (hour < 17) return "Afternoon";

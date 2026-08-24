@@ -60,7 +60,7 @@ const HotelCard = ({ item }: Props) => {
             Estimated Cost:
           </span>
           <span className="text-lg font-black text-slate-800 tracking-tight block mt-0.5">
-            ${item.cost === 0 ? "FREE" : `$${item.cost}`}
+            {item.cost === 0 ? "FREE" : `$${item.cost}`}
           </span>
         </div>
       </div>

@@ -48,7 +48,7 @@ export function FlightCard({ item }: FlightCardProps) {
             Estimated Cost:
           </span>
           <span className="text-lg font-black text-emerald-400 tracking-tight block mt-0.5">
-            ${item.cost === 0 ? "FREE" : `$${item.cost}`}
+            {item.cost === 0 ? "FREE" : `$${item.cost}`}
           </span>
         </div>
       </div>
